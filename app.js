@@ -58,6 +58,12 @@
     syncCloud:   { es: 'guardado y sincronizado', en: 'saved and synced' },
     syncLocal:   { es: 'guardado solo en este navegador', en: 'saved in this browser only' },
     syncChecking:{ es: 'conectando…', en: 'connecting…' },
+    resetLesson: { es: 'Reiniciar mis respuestas', en: 'Reset my answers' },
+    resetConfirm:{ es: 'Sí, borrar', en: 'Yes, delete' },
+    resetWarn:   { es: 'se borran los aciertos de esta lección', en: "this lesson's answers will be deleted" },
+    resetAll:    { es: 'Reiniciar todo el progreso', en: 'Reset all progress' },
+    resetAllOk:  { es: 'Sí, borrar todo', en: 'Yes, delete everything' },
+    resetAllWarn:{ es: 'se borra el progreso de todas las lecciones', en: 'progress in every lesson will be deleted' },
     prev:        { es: '← Anterior', en: '← Previous' },
     next:        { es: 'Siguiente →', en: 'Next →' },
     upcoming:    { es: 'Pendiente', en: 'Coming up' },
@@ -152,6 +158,18 @@
         saveLocal();
       });
     }).catch(function () { dbEstado = 'local'; });
+  }
+
+  /* Borra el progreso de una leccion: en memoria, en localStorage y en la nube. */
+  function reiniciar(lessonId) {
+    prog[lessonId] = { done: false, checks: {} };
+    saveLocal();
+    if (!db) return Promise.resolve();
+    var previa = colas[lessonId] || Promise.resolve();
+    colas[lessonId] = previa
+      .then(function () { return db.doc('progreso/' + lessonId).delete(); })
+      .catch(function () {});
+    return colas[lessonId];
   }
 
   function checkIdsOf(id) {
@@ -389,7 +407,7 @@
         case 'svg':
           n = el('figure', 'dia');
           if (b.title) n.appendChild(el('p', 'dia-t', esc(T(b.title))));
-          n.appendChild(el('div', null, b.svg));
+          n.appendChild(el('div', 'svg-scroll', b.svg));
           if (b.cap) n.appendChild(el('figcaption', null, T(b.cap)));
           box.appendChild(n);
           break;
@@ -654,6 +672,32 @@
     });
     w.appendChild(grid);
 
+    /* Reiniciar todo el progreso, con confirmacion en dos pasos. */
+    var zona = el('div', 'reset-row');
+    zona.style.marginTop = '26px';
+    var todo = el('button', 'btn ghost', U('resetAll'));
+    var confirmando = false, temporizador;
+    todo.addEventListener('click', function () {
+      if (!confirmando) {
+        confirmando = true;
+        todo.className = 'btn danger';
+        todo.textContent = U('resetAllOk');
+        zona.appendChild(el('span', 'reset-msg', U('resetAllWarn')));
+        temporizador = setTimeout(function () {
+          confirmando = false;
+          todo.className = 'btn ghost';
+          todo.textContent = U('resetAll');
+          if (zona.lastChild !== todo) zona.removeChild(zona.lastChild);
+        }, 6000);
+        return;
+      }
+      clearTimeout(temporizador);
+      var pendientes = Object.keys(LESSONS).map(reiniciar);
+      Promise.all(pendientes).then(function () { viewHome(); });
+    });
+    zona.appendChild(todo);
+    w.appendChild(zona);
+
     main.innerHTML = '';
     plots = [];
     main.appendChild(w);
@@ -719,6 +763,30 @@
     sc.id = 'score';
     sc.textContent = nRight(id) + ' / ' + nChecks(id) + ' ' + U('checksLabel');
     foot.appendChild(sc);
+    var fila = el('div', 'reset-row');
+    var rst = el('button', 'btn ghost', U('resetLesson'));
+    var confirmando = false, temporizador;
+    rst.addEventListener('click', function () {
+      if (!confirmando) {
+        confirmando = true;
+        rst.className = 'btn danger';
+        rst.textContent = U('resetConfirm');
+        fila.appendChild(el('span', 'reset-msg', U('resetWarn')));
+        temporizador = setTimeout(function () {
+          confirmando = false;
+          rst.className = 'btn ghost';
+          rst.textContent = U('resetLesson');
+          if (fila.lastChild !== rst) fila.removeChild(fila.lastChild);
+        }, 6000);
+        return;
+      }
+      clearTimeout(temporizador);
+      reiniciar(id);
+      viewLesson(id);
+    });
+    fila.appendChild(rst);
+    foot.appendChild(fila);
+
     var sy = el('span', 'sync');
     sy.id = 'sync';
     pintarSync(sy);
@@ -776,6 +844,7 @@
   function route() {
     sidebar.classList.remove('open');
     menuBtn.setAttribute('aria-expanded', 'false');
+    if (typeof scrim !== 'undefined' && scrim) { scrim.remove(); scrim = null; }
     var h = location.hash.replace(/^#\/?/, '');
     var parts = h.split('/').filter(Boolean);
     if (!parts.length) { renderTabs(null); return viewHome(); }
@@ -789,10 +858,23 @@
   }
   window.addEventListener('hashchange', function () { route(); window.scrollTo(0, 0); });
 
+  var scrim = null;
+  function cerrarMenu() {
+    sidebar.classList.remove('open');
+    menuBtn.setAttribute('aria-expanded', 'false');
+    if (scrim) { scrim.remove(); scrim = null; }
+  }
   menuBtn.addEventListener('click', function () {
     var open = sidebar.classList.toggle('open');
     menuBtn.setAttribute('aria-expanded', String(open));
+    if (open) {
+      scrim = el('button', 'scrim');
+      scrim.setAttribute('aria-label', LANG === 'es' ? 'Cerrar el índice' : 'Close the index');
+      scrim.addEventListener('click', cerrarMenu);
+      document.body.appendChild(scrim);
+    } else { cerrarMenu(); }
   });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarMenu(); });
 
   /* Arranca cuando MathJax este listo; la db se consulta en paralelo y,
      si contesta despues, se repinta la vista con el progreso ya fusionado. */

@@ -1,4 +1,39 @@
 <title>Cuaderno Year 11</title>
+<script>
+/* El visor de artifacts inyecta charset y viewport. Servida como pagina normal
+   (GitHub Pages) no hay ninguno y el movil renderiza a 980px. Se anaden si faltan. */
+(function () {
+  var h = document.head || document.getElementsByTagName('head')[0];
+  if (!document.querySelector('meta[charset]')) {
+    var c = document.createElement('meta');
+    c.setAttribute('charset', 'UTF-8');
+    h.insertBefore(c, h.firstChild);
+  }
+  if (!document.querySelector('meta[name="viewport"]')) {
+    var v = document.createElement('meta');
+    v.name = 'viewport';
+    v.content = 'width=device-width, initial-scale=1, viewport-fit=cover';
+    h.appendChild(v);
+  }
+  if (!document.documentElement.getAttribute('lang')) document.documentElement.lang = 'es';
+
+  /* iPhone / iPad: Safari necesita algunos ajustes propios (rebote del scroll,
+     muescas laterales en horizontal, alto real de la ventana con las barras). */
+  var ua = navigator.userAgent || '';
+  var esIOS = /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (esIOS) {
+    document.documentElement.setAttribute('data-ios', '1');
+    /* alto real de la ventana, que en Safari cambia al aparecer y ocultarse las barras */
+    var alto = function () {
+      document.documentElement.style.setProperty('--vh', window.innerHeight + 'px');
+    };
+    alto();
+    window.addEventListener('resize', alto);
+    window.addEventListener('orientationchange', alto);
+  }
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400..700&display=swap">
@@ -46,8 +81,13 @@
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -16px rgba(0,0,0,.8);
 }
 *{box-sizing:border-box}
-body{background:var(--bg); color:var(--ink); font-family:var(--f-body);
-  font-size:16.5px; line-height:1.65; -webkit-font-smoothing:antialiased;}
+html{color-scheme:light dark; -webkit-text-size-adjust:100%; text-size-adjust:100%;
+  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--f-body);
+  font-size:16.5px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:rgba(0,0,0,.06);}
 [data-subject="math"]{--accent:var(--math);--accent-soft:var(--math-soft);--accent-ink:var(--math-ink)}
 [data-subject="phys"]{--accent:var(--phys);--accent-soft:var(--phys-soft);--accent-ink:var(--phys-ink)}
 [data-subject="chem"]{--accent:var(--chem);--accent-soft:var(--chem-soft);--accent-ink:var(--chem-ink)}
@@ -60,7 +100,7 @@ code{font-family:var(--f-mono); font-size:.88em; background:var(--surface-2); pa
 .topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:40;
   display:flex; align-items:center; gap:10px; padding:9px 16px;
   background:color-mix(in srgb, var(--bg) 90%, transparent);
-  backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
 .brand{display:flex; align-items:center; gap:9px; text-decoration:none; color:var(--ink); margin-right:auto}
 .brand b{font-family:var(--f-display); font-weight:700; font-size:15.5px; letter-spacing:-.01em; display:block}
 .brand i{font-family:var(--f-mono); font-style:normal; font-size:10px; color:var(--ink-3);
@@ -250,7 +290,7 @@ figure.plot figcaption{font-family:var(--f-mono); font-size:11px; color:var(--in
 .opt.wrong{background:var(--bad-soft); border-color:var(--bad)}
 .opt:disabled{cursor:default}
 .numrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
-.numrow input{font-family:var(--f-mono); font-size:15px; padding:8px 11px; width:140px;
+.numrow input{font-family:var(--f-mono); font-size:16px; padding:9px 12px; width:150px;
   border:1px solid var(--line-2); border-radius:8px; background:var(--surface-2); color:var(--ink)}
 .numrow .unit{font-family:var(--f-mono); font-size:13px; color:var(--ink-3)}
 .btn{background:var(--accent); color:var(--bg); border:0; border-radius:8px; padding:9px 16px;
@@ -262,6 +302,34 @@ figure.plot figcaption{font-family:var(--f-mono); font-size:11px; color:var(--in
 .fb.ok{background:var(--ok-soft); border:1px solid color-mix(in srgb,var(--ok) 42%,transparent)}
 .fb.no{background:var(--bad-soft); border:1px solid color-mix(in srgb,var(--bad) 42%,transparent)}
 .fb b{font-family:var(--f-display)}
+
+/* ---- ajustes propios de Safari en iPhone ---- */
+:root[data-ios] body{overscroll-behavior-y:none}
+:root[data-ios] main{
+  padding-left:calc(16px + env(safe-area-inset-left,0px));
+  padding-right:calc(16px + env(safe-area-inset-right,0px));
+}
+:root[data-ios] .topbar{
+  padding-left:calc(12px + env(safe-area-inset-left,0px));
+  padding-right:calc(12px + env(safe-area-inset-right,0px));
+}
+:root[data-ios] .sidebar{
+  padding-left:calc(16px + env(safe-area-inset-left,0px));
+  max-height:calc(var(--vh, 100vh) - 52px);
+}
+/* en Safari el desplazamiento por inercia dentro de una caja necesita declararse */
+:root[data-ios] .vocab-wrap,
+:root[data-ios] .fx,
+:root[data-ios] .mline,
+:root[data-ios] .wrong-line,
+:root[data-ios] .right-line{-webkit-overflow-scrolling:touch}
+
+.scrim{position:fixed; inset:0; background:rgba(8,16,20,.45); z-index:34; border:0; padding:0;
+  -webkit-backdrop-filter:blur(1px); backdrop-filter:blur(1px)}
+.btn.danger{background:var(--bad); color:var(--bg); border:0}
+.btn.ghost.danger{background:transparent; color:var(--bad); border:1px solid var(--bad)}
+.reset-row{display:flex; gap:9px; align-items:center; flex-wrap:wrap; width:100%; order:8}
+.reset-msg{font-family:var(--f-mono); font-size:11.5px; color:var(--bad); line-height:1.4}
 
 .lesson-foot{margin-top:42px; padding-top:20px; border-top:1px solid var(--line);
   display:flex; gap:12px; flex-wrap:wrap; align-items:center}
@@ -292,17 +360,70 @@ mjx-container svg{max-width:100%}
   .shell{grid-template-columns:1fr}
   #menuBtn{display:grid}
   .sidebar{display:none; position:fixed; left:0; right:auto; bottom:0; z-index:35;
-    top:calc(env(safe-area-inset-top,0px) + 52px); width:274px; background:var(--bg);
-    max-height:none; border-right:1px solid var(--line); box-shadow:0 0 40px rgba(0,0,0,.28); overflow-y:auto}
+    top:calc(env(safe-area-inset-top,0px) + 53px); width:min(80vw,290px); background:var(--bg);
+    max-height:none; border-right:1px solid var(--line); box-shadow:0 0 40px rgba(0,0,0,.28);
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
   .sidebar.open{display:block}
-  .tabs a{padding:5px 9px; font-size:12.5px}
-  .brand i{display:none}
-  main{padding:24px 16px 80px}
+  main{padding:22px 16px 80px}
 }
-@media (max-width:460px){
-  body{font-size:16px}
-  .brand b{font-size:14px}
-  .tabs a{padding:4px 8px; font-size:12px}
+
+/* ---------- movil (iPhone 11 = 414 x 896) ---------- */
+@media (max-width:520px){
+  body{font-size:17px; line-height:1.6}
+
+  /* en el movil la barra solo lleva el cuadro Y11: el titulo ya esta en la leccion */
+  .topbar{gap:6px; padding:8px 10px}
+  .brand i, .brand b{display:none}
+  .brand{margin-right:auto; gap:0}
+  .mark{width:34px; height:34px; font-size:11.5px}
+  .tabs{flex:0 1 auto; min-width:0}
+  .tabs{gap:3px}
+  .tabs a{padding:7px 10px; font-size:12.5px}
+  .icon-btn{width:38px; height:38px}
+  .icon-btn.lang{width:auto; min-width:38px; padding:0 10px}
+
+  main{padding:20px 16px calc(70px + env(safe-area-inset-bottom,0px))}
+  .lesson-head h1{font-size:27px}
+  .lesson-head{padding-bottom:16px}
+  h2.sec{font-size:19px; gap:8px}
+  .hero h1{font-size:29px}
+  .hero p{font-size:16.5px}
+  .crumb{font-size:10px}
+
+  /* los diagramas no se encogen hasta ser ilegibles: se desplazan */
+  figure.dia{padding:14px 0 10px}
+  figure.dia .svg-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; padding:0 14px}
+  figure.dia svg{min-width:520px}
+  figure.dia .dia-t, figure.dia figcaption{padding:0 14px}
+
+  .box{padding:14px 15px}
+  .fx{padding:12px 15px}
+  .fixbox > header{padding:9px 14px; font-size:10px}
+  .fixbox .part{padding:12px 14px}
+  .work > header, .work .stmt, .result{padding-left:15px; padding-right:15px}
+  .steps li{padding:13px 15px 13px 46px}
+  .steps li::before{left:13px}
+  .check{padding:14px 15px}
+
+  /* respuestas comodas con el dedo */
+  .opt{padding:12px 14px; font-size:16px}
+  .numrow{gap:9px}
+  .numrow input{width:100%}
+  .numrow .btn{flex:1 1 auto}
+  .btn{padding:11px 18px; font-size:14px}
+  .reveal{padding:8px 14px; font-size:12px}
+
+  .navpair a{flex:1 1 100%}
+  .lesson-foot{gap:10px}
+  .score{margin-left:0; width:100%; order:7}
+  .vocab{font-size:14px}
+}
+
+@media (max-width:380px){
+  .tabs a{padding:6px 8px; font-size:12px}
+  .brand b{font-size:13.5px}
+  figure.dia svg{min-width:460px}
 }
 </style>
 
