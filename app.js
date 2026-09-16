@@ -76,9 +76,6 @@
     resetLesson: { es: 'Reiniciar mis respuestas', en: 'Reset my answers' },
     resetConfirm:{ es: 'Sí, borrar', en: 'Yes, delete' },
     resetWarn:   { es: 'se borran los aciertos de esta lección', en: "this lesson's answers will be deleted" },
-    resetAll:    { es: 'Reiniciar todo el progreso', en: 'Reset all progress' },
-    resetAllOk:  { es: 'Sí, borrar todo', en: 'Yes, delete everything' },
-    resetAllWarn:{ es: 'se borra el progreso de todas las lecciones', en: 'progress in every lesson will be deleted' },
     prev:        { es: '← Anterior', en: '← Previous' },
     next:        { es: 'Siguiente →', en: 'Next →' },
     upcoming:    { es: 'Pendiente', en: 'Coming up' },
@@ -794,32 +791,6 @@
       grid.appendChild(a);
     });
     w.appendChild(grid);
-
-    /* Reiniciar todo el progreso, con confirmacion en dos pasos. */
-    var zona = el('div', 'reset-row');
-    zona.style.marginTop = '26px';
-    var todo = el('button', 'btn ghost', U('resetAll'));
-    var confirmando = false, temporizador;
-    todo.addEventListener('click', function () {
-      if (!confirmando) {
-        confirmando = true;
-        todo.className = 'btn danger';
-        todo.textContent = U('resetAllOk');
-        zona.appendChild(el('span', 'reset-msg', U('resetAllWarn')));
-        temporizador = setTimeout(function () {
-          confirmando = false;
-          todo.className = 'btn ghost';
-          todo.textContent = U('resetAll');
-          if (zona.lastChild !== todo) zona.removeChild(zona.lastChild);
-        }, 6000);
-        return;
-      }
-      clearTimeout(temporizador);
-      var pendientes = Object.keys(LESSONS).map(reiniciar);
-      Promise.all(pendientes).then(function () { viewHome(); });
-    });
-    zona.appendChild(todo);
-    w.appendChild(zona);
 
     main.innerHTML = '';
     plots = [];
