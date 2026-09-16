@@ -67,6 +67,10 @@
     bankNotes:   { es: 'De los apuntes', en: 'From your notes' },
     bankNew1:    { es: 'Nuevas preguntas', en: 'New questions' },
     bankNew2:    { es: 'Nuevas · 2', en: 'New · 2' },
+    bankMore:    { es: '¿Quieres más preguntas?', en: 'Want more questions?' },
+    bankMoreHint:{ es: 'Elige otra tanda y las preguntas de arriba se cambian por unas distintas.',
+                   en: 'Pick another set and the questions above are swapped for different ones.' },
+    bankJump:    { es: 'Ir a los ejercicios', en: 'Go to the exercises' },
     bankHint:    { es: 'Las de los apuntes salen de los ejemplos de tu clase. Las nuevas son distintas, para practicar otra vez.',
                    en: 'The notes ones come from your own class examples. The new ones are different, to practise again.' },
     resetLesson: { es: 'Reiniciar mis respuestas', en: 'Reset my answers' },
@@ -571,9 +575,9 @@
   }
 
   /* Botonera para elegir la tanda de ejercicios. */
-  function selectorTandas(lessonId) {
-    var n = el('div', 'tandas');
-    n.appendChild(el('p', 'tandas-t', U('bankTitle')));
+  function selectorTandas(lessonId, alFinal) {
+    var n = el('div', 'tandas' + (alFinal ? ' tandas-fin' : ''));
+    n.appendChild(el('p', 'tandas-t', alFinal ? U('bankMore') : U('bankTitle')));
     var fila = el('div', 'tandas-row');
     var disponibles = tandasDe(lessonId);
     var activa = tandaDe(lessonId);
@@ -592,11 +596,13 @@
         if (t === tandaDe(lessonId)) return;
         ponerTanda(lessonId, t);
         viewLesson(lessonId);
+        var destino = document.querySelector('.tandas');
+        if (destino) destino.scrollIntoView({ block: 'start', behavior: 'smooth' });
       });
       fila.appendChild(b);
     });
     n.appendChild(fila);
-    n.appendChild(el('p', 'tandas-hint', U('bankHint')));
+    n.appendChild(el('p', 'tandas-hint', alFinal ? U('bankMoreHint') : U('bankHint')));
     return n;
   }
 
@@ -860,10 +866,24 @@
     hd.appendChild(el('h1', null, esc(T(L.title))));
     hd.appendChild(el('p', 'en-title', esc(LANG === 'es' ? T(L.en) : T(L.title).toString())));
     hd.appendChild(el('p', 'lede', esc(T(L.lede))));
+    if (tandasDe(id).length > 1) {
+      var etiquetas = { apuntes: U('bankNotes'), nuevas1: U('bankNew1'), nuevas2: U('bankNew2') };
+      var aviso = el('button', 'jump-ej');
+      aviso.innerHTML = '<span>' + U('bankJump') + '</span><span class="jump-n">' +
+        etiquetas[tandaDe(id)] + '</span>';
+      aviso.addEventListener('click', function () {
+        var destino = document.querySelector('.tandas');
+        if (destino) destino.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+      hd.appendChild(aviso);
+    }
     w.appendChild(hd);
 
     plots = [];
     renderBlocks(id, w);
+
+    /* Al terminar los ejercicios es justo cuando quiere mas: el selector se repite aqui. */
+    if (tandasDe(id).length > 1) w.appendChild(selectorTandas(id, true));
 
     var foot = el('div', 'lesson-foot');
     var b = el('button', 'btn' + (pl(id).done ? ' ghost' : ''), pl(id).done ? U('markedDone') : U('markDone'));
