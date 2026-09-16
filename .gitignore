@@ -1,0 +1,10 @@
+# Fotos de los apuntes de clase: se quedan SOLO en local, nunca se suben.
+fotos/
+
+# Trabajo temporal de la sesion
+scratch/
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store

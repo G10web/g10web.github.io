@@ -1,0 +1,824 @@
+/* Fisica - Unidad 1: Cinematica.
+   Construido a partir de los apuntes de clase (Kinematics + Acceleration).
+   Numeros verificados con Python en scratch/verificar_cinematica.py */
+
+Object.assign(LESSONS, {
+
+/* ==================================================================== */
+'metodo': {
+  subject: 'phys',
+  title: D('El método de tu profesor', 'Your teacher\'s method'),
+  en: 'How your teacher solves problems',
+  lede: D('Los seis problemas del cuaderno están resueltos con el mismo procedimiento, siempre en el mismo orden. Si lo repites igual en el examen, los puntos del procedimiento son tuyos aunque el número final falle.',
+          'All six problems in your notebook follow the same procedure, always in the same order. Repeat it in the exam and the method marks are yours even if the final number is wrong.'),
+  blocks: [
+
+  {t:'h', title:D('Los seis pasos', 'The six steps'), sub:'The routine'},
+  {t:'p', html:D('Mirando las cuatro páginas del cuaderno, todos los problemas siguen esta secuencia. No es casualidad: es el método que se puntúa.',
+                 'Looking at the four pages of your notebook, every problem follows this sequence. That is not a coincidence: it is the method that earns marks.')},
+  {t:'svg', title:D('El procedimiento completo', 'The full procedure'), svg:DIA.metodo,
+    cap:D('Los seis problemas del cuaderno siguen este orden, del dibujo a la comprobación.',
+          'All six problems in the notebook follow this order, from the sketch to the check.')},
+
+  {t:'h', title:D('Paso 2: la lista de datos', 'Step 2: the data list'), sub:'Knowns and unknowns'},
+  {t:'p', html:D('Es la marca de la casa de tu profesor: antes de tocar ninguna fórmula, una columna con cada dato y su unidad, y la incógnita marcada con una interrogación.',
+                 'This is your teacher\'s signature move: before touching any formula, a column with each value and its unit, and the unknown marked with a question mark.')},
+  {t:'fx', tex:R`\begin{aligned}
+    v_i &= 15 \text{ m/s} \\
+    a &= -5 \text{ m/s}^2 \\
+    v_f &= 0 \text{ m/s} \\
+    t &= \;?
+  \end{aligned}`, cap:D('Así aparece en el problema de María en el cuaderno', 'This is how it appears in the María problem')},
+  {t:'key', title:D('Por qué funciona', 'Why it works'), html:D(
+    'Esa columna hace tres cosas a la vez: te obliga a <strong>convertir unidades</strong> antes de calcular, te enseña de un vistazo <strong>qué variable falta</strong> (que es la que elige la ecuación) y deja por escrito que has entendido el enunciado. Los tres son puntos.',
+    'That column does three things at once: it forces you to <strong>convert units</strong> before calculating, it shows you at a glance <strong>which variable is missing</strong> (which is what picks the equation), and it puts in writing that you understood the question. All three are marks.')},
+
+  {t:'h', title:D('Paso 3: elegir por lo que falta', 'Step 3: choose by what is missing'), sub:'The nicknames'},
+  {t:'p', html:D('Tu profesor no nombra las ecuaciones por lo que calculan, sino por la variable que <strong>ignoran</strong>. Por eso los motes.',
+                 'Your teacher names the equations not by what they calculate, but by the variable they <strong>ignore</strong>. Hence the nicknames.')},
+  {t:'vocab', head:[D('Mote','Nickname'), D('Ecuación','Equation'), D('No lleva','Missing')], rows:[
+    ['DOVE', 'a = Δv / Δt', 'Δx'],
+    ['t-squared', 'Δx = vᵢt + ½at²', 'v_f'],
+    ['timeless', 'v_f² = vᵢ² + 2aΔx', 't']
+  ]},
+  {t:'p', html:D('Con cinco símbolos ($v_i$, $v_f$, $a$, $t$, $\\Delta x$), si te dan tres y te piden uno, siempre sobra exactamente uno. Ese es el que la ecuación tiene que ignorar.',
+                 'With five symbols ($v_i$, $v_f$, $a$, $t$, $\\Delta x$), if you are given three and asked for one, exactly one is left over. That is the one your equation must ignore.')},
+
+  {t:'h', title:D('Paso 6: comprobar por otro camino', 'Step 6: check by another route'), sub:'Self-checking'},
+  {t:'p', html:D('En el cuaderno, varios resultados están calculados dos veces con ecuaciones distintas. Es la mejor costumbre que tienes: si dos caminos independientes dan el mismo número, ese número es correcto.',
+                 'In the notebook, several results are worked out twice with different equations. It is the best habit you have: if two independent routes give the same number, that number is right.')},
+  {t:'ex',
+    title:D('El coche: 100 m por dos caminos', 'The car: 100 m two ways'),
+    stmt:D('vᵢ = 0, v_f = 25 m/s, t = 8 s. Calcula Δx de dos formas distintas.',
+           'vᵢ = 0, v_f = 25 m/s, t = 8 s. Find Δx in two different ways.'),
+    given:['vᵢ = 0 m/s', 'v_f = 25 m/s', 't = 8 s', 'Δx = ?'],
+    steps:[
+      {do:R`$$a = \frac{25-0}{8} = 3{,}125\ \text{m/s}^2 \;\Rightarrow\; \Delta x = \tfrac{1}{2}(3{,}125)(8)^2 = 100 \text{ m}$$`,
+       why:D('Camino 1: DOVE para sacar a, y después t-squared.', 'Route 1: DOVE to get a, then t-squared.')},
+      {do:R`$$\Delta x = \frac{v_f^2 - v_i^2}{2a} = \frac{625 - 0}{6{,}25} = 100 \text{ m}$$`,
+       why:D('Camino 2: la timeless, que ni siquiera usa el tiempo. Mismo resultado: confirmado.',
+             'Route 2: timeless, which does not even use the time. Same result: confirmed.')}
+    ],
+    result:R`$\Delta x = 100$ m`
+  },
+
+  {t:'h', title:D('Los avisos en rojo', 'The red warnings'), sub:'Restrictions'},
+  {t:'p', html:D('En el cuaderno hay un recuadro rojo con <em>"CONSTANT VELOCITY ONLY!"</em> al lado de $v = \\Delta x/\\Delta t$. Cada fórmula tiene condiciones de uso, y la mitad de los errores de examen vienen de aplicar una fórmula fuera de su terreno.',
+                 'The notebook has a red box saying <em>"CONSTANT VELOCITY ONLY!"</em> next to $v = \\Delta x/\\Delta t$. Every formula has conditions, and half of all exam mistakes come from using a formula outside its territory.')},
+  {t:'vocab', head:[D('Fórmula','Formula'), D('Solo vale si…','Only valid when…')], rows:[
+    ['v = Δx / Δt', D('la velocidad es constante (a = 0)', 'the velocity is constant (a = 0)')],
+    ['DOVE · t-squared · timeless', D('la aceleración es constante', 'the acceleration is constant')],
+    [D('pendiente = v', 'slope = v'), D('en una gráfica x-t, y solo en tramos rectos', 'on an x-t graph, and only on straight sections')],
+    [D('área = Δx', 'area = Δx'), D('en una gráfica v-t', 'on a v-t graph')]
+  ]},
+
+  {t:'h', title:D('Compruébalo tú', 'Check yourself'), sub:'Check yourself'},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('Te dan vᵢ, v_f y Δx, y te piden la aceleración. ¿Qué ecuación toca?',
+        'You are given vᵢ, v_f and Δx, and asked for the acceleration. Which equation?'),
+    options:[D('timeless','timeless'), D('t-squared','t-squared'), D('DOVE','DOVE'), D('v = Δx/Δt','v = Δx/Δt')],
+    answer:0,
+    explain:D('La variable que no aparece ni en los datos ni en la pregunta es $t$, y la única ecuación sin $t$ es la timeless. Este es exactamente el razonamiento del paso 3.',
+              'The variable that appears neither in the data nor in the question is $t$, and the only equation without $t$ is timeless. This is exactly the step 3 reasoning.')},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('¿Por qué tu profesor escribe el despeje en una línea aparte antes de meter los números?',
+        'Why does your teacher write the rearrangement on its own line before substituting numbers?'),
+    options:[
+      D('Porque así el procedimiento se puntúa aunque el número final salga mal','Because the method still earns marks even if the final number is wrong'),
+      D('Porque es obligatorio en física','Because it is compulsory in physics'),
+      D('Porque las calculadoras no aceptan fracciones','Because calculators do not accept fractions'),
+      D('Porque acorta el ejercicio','Because it makes the exercise shorter')
+    ],
+    answer:0,
+    explain:D('Un examen de física puntúa por pasos. Si mezclas el despeje con la sustitución en una sola línea y te equivocas al teclear, pierdes el ejercicio entero; si están separados, pierdes solo el último punto.',
+              'Physics exams award marks step by step. If you mix the rearrangement and the substitution into one line and mistype something, you lose the whole question; if they are separate, you only lose the last mark.')}
+  ]
+},
+
+/* ==================================================================== */
+'cinematica-basica': {
+  subject: 'phys',
+  title: D('Posición, desplazamiento y velocidad', 'Position, displacement and velocity'),
+  en: 'Position, displacement & velocity',
+  lede: D('Las magnitudes con las que se describe cualquier movimiento, y la distinción que más puntos cuesta en los exámenes: distancia frente a desplazamiento.',
+          'The quantities used to describe any motion, and the distinction that costs the most marks in exams: distance versus displacement.'),
+  blocks: [
+
+  {t:'h', title:D('Las magnitudes y sus símbolos', 'The quantities and their symbols'), sub:'Quantities and symbols'},
+  {t:'p', html:D('Toda la cinemática se construye sobre unas pocas magnitudes. Apréndete la tabla entera: en el examen te dan números sueltos y tú tienes que reconocer <em>qué</em> magnitud es cada uno por su unidad.',
+                 'All of kinematics is built on a handful of quantities. Learn the whole table: in the exam you get loose numbers and you have to recognise <em>which</em> quantity each one is from its unit.')},
+  {t:'vocab', head:[D('Magnitud','Quantity'), 'English', D('Símbolo','Symbol'), D('Unidad','Unit')], rows:[
+    [D('Posición','Position'), 'position', 'x', 'm'],
+    [D('Desplazamiento','Displacement'), 'displacement', 'Δx', 'm'],
+    [D('Distancia','Distance'), 'distance', 'd', 'm'],
+    [D('Tiempo','Time'), 'time', 't  (Δt)', 's'],
+    [D('Velocidad','Velocity'), 'velocity', 'v', 'm/s'],
+    [D('Rapidez','Speed'), 'speed', '—', 'm/s']
+  ]},
+  {t:'note', title:D('El símbolo Δ','The Δ symbol'), html:D(
+    R`La letra griega <strong>Δ</strong> (delta) significa siempre <em>"cambio en"</em> (<span class="en">change in</span>). No es un número que multiplica: $\Delta x$ es una sola cosa, el cambio de posición.
+     $$\Delta x = x_{\text{final}} - x_{\text{inicial}} \qquad \Delta t = t_{\text{final}} - t_{\text{inicial}}$$`,
+    R`The Greek letter <strong>Δ</strong> (delta) always means <em>"change in"</em>. It is not a number multiplying something: $\Delta x$ is one single thing, the change in position.
+     $$\Delta x = x_{\text{final}} - x_{\text{initial}} \qquad \Delta t = t_{\text{final}} - t_{\text{initial}}$$`)},
+
+  {t:'h', title:D('Distancia ≠ desplazamiento', 'Distance ≠ displacement'), sub:'Distance vs displacement'},
+  {t:'svg', title:D('La misma trayectoria, dos medidas distintas', 'Same path, two different measurements'), svg:DIA.distDesp,
+    cap:D('La línea continua es la distancia d: todo lo recorrido. La flecha discontinua es el desplazamiento Δx: solo importa dónde empiezas y dónde acabas.',
+          'The solid line is the distance d: everything travelled. The dashed arrow is the displacement Δx: only where you start and where you finish matters.')},
+  {t:'ul', items:[
+    D(R`<strong>Distancia</strong> <span class="en">(distance, d)</span>: todo lo que has recorrido, sumado. Nunca es negativa y nunca disminuye. Es lo que marca el cuentakilómetros.`,
+      R`<strong>Distance</strong> (d): everything you have travelled, added up. Never negative and never decreases. It is what the odometer shows.`),
+    D(R`<strong>Desplazamiento</strong> <span class="en">(displacement, $\Delta x$)</span>: solo la diferencia entre dónde acabas y dónde empezaste. Puede ser negativo, y es <strong>cero</strong> si vuelves al punto de partida.`,
+      R`<strong>Displacement</strong> ($\Delta x$): just the difference between where you finish and where you started. It can be negative, and it is <strong>zero</strong> if you return to the starting point.`)
+  ]},
+  {t:'key', title:D('La regla que lo resume','The rule in one line'), html:D(
+    R`Si vuelves a donde empezaste, tu <strong>desplazamiento es 0</strong> y por tanto tu <strong>velocidad media es 0</strong>, por muy rápido que hayas ido. Tu distancia y tu rapidez, en cambio, son grandes.`,
+    R`If you return to where you started, your <strong>displacement is 0</strong> and therefore your <strong>average velocity is 0</strong>, no matter how fast you went. Your distance and your speed, however, are large.`)},
+
+  {t:'fix',
+    title:D('"magnitude" no es una magnitud', '"magnitude" is not a quantity'),
+    wrong:'magnitude → how far from point 0',
+    why:D(R`Está escrito como si <em>magnitude</em> fuese una magnitud más de la lista, al lado de distancia y desplazamiento. No lo es. En inglés de física, <strong>magnitude</strong> significa "módulo", es decir, el tamaño de un vector sin su signo, y <strong>siempre es el módulo de algo</strong>: nunca va sola.`,
+             R`It is written as if <em>magnitude</em> were another quantity in the list, next to distance and displacement. It is not. In physics English, <strong>magnitude</strong> means the size of a vector without its sign, and it is <strong>always the magnitude of something</strong>: it never stands alone.`),
+    right:'|Δx| = magnitude of the displacement = módulo del desplazamiento',
+    note:D(R`Lo que describías ahí ("a qué distancia has acabado del punto 0") es exactamente $|\Delta x|$: el desplazamiento quitándole el signo.`,
+           R`What you were describing there ("how far you ended up from point 0") is exactly $|\Delta x|$: the displacement with its sign removed.`),
+    tip:D('Cada vez que escribas "magnitude", termina la frase: <em>magnitude of the displacement</em>, <em>magnitude of the velocity</em>. Si no puedes terminarla, es que no sabes de qué vector estás hablando.',
+          'Every time you write "magnitude", finish the phrase: <em>magnitude of the displacement</em>, <em>magnitude of the velocity</em>. If you cannot finish it, you do not know which vector you mean.')},
+
+  {t:'h', title:D('Rapidez y velocidad', 'Speed and velocity'), sub:'Speed and velocity'},
+  {t:'p', html:D('Misma unidad (m/s), distinta receta. La barra encima de la letra significa "media" (<span class="en">average</span>).',
+                 'Same unit (m/s), different recipe. The bar over the letter means "average".')},
+  {t:'fx', tex:D(R`\underbrace{\text{rapidez} = \frac{d}{\Delta t}}_{\text{usa la DISTANCIA}}
+     \qquad\qquad
+     \underbrace{\bar{v} = \frac{\Delta x}{\Delta t}}_{\text{usa el DESPLAZAMIENTO}}`,
+    R`\underbrace{\text{speed} = \frac{d}{\Delta t}}_{\text{uses DISTANCE}}
+     \qquad\qquad
+     \underbrace{\bar{v} = \frac{\Delta x}{\Delta t}}_{\text{uses DISPLACEMENT}}`),
+    cap:D('Misma unidad, numeradores distintos', 'Same unit, different numerators')},
+  {t:'p', html:D(R`La velocidad lleva <strong>signo</strong>, y el signo es la dirección: $v>0$ significa que te mueves hacia el lado positivo del eje, $v<0$ hacia el lado negativo. La rapidez no tiene signo nunca.`,
+                 R`Velocity carries a <strong>sign</strong>, and the sign is the direction: $v>0$ means you move towards the positive side of the axis, $v<0$ towards the negative side. Speed never has a sign.`)},
+  {t:'warn', title:D('Error típico','Common mistake'), html:D(
+    R`Escribir $v = d/t$ en vez de $v = \Delta x / \Delta t$. Funciona por casualidad cuando el movimiento va todo recto y sin volver atrás, y falla en cuanto hay una vuelta. Usa siempre $\Delta x$.`,
+    R`Writing $v = d/t$ instead of $v = \Delta x / \Delta t$. It works by accident when the motion is all in one direction, and fails as soon as there is a return trip. Always use $\Delta x$.`)},
+
+  {t:'h', title:D('Ejemplo del cuaderno: el viaje de ida y vuelta', 'Notebook example: the round trip'), sub:'Worked example'},
+  {t:'svg', title:D('El recorrido completo','The full journey'), svg:DIA.viaje,
+    cap:D('Elegimos como positivo el sentido de la ida. Entonces la vuelta tiene desplazamiento y velocidad negativos: los dos signos cambian a la vez.',
+          'We take the outward direction as positive. The return trip then has negative displacement and negative velocity: both signs flip together.')},
+  {t:'ex',
+    title:D('Ida andando, vuelta corriendo', 'Walking there, running back'),
+    stmt:D('Recorres los 1200 m que te separan del punto B en 10 minutos andando. Vuelves corriendo por el mismo camino a 6 m/s.',
+           'You cover the 1200 m to point B in 10 minutes walking. You run back along the same route at 6 m/s.'),
+    given:['Δx = 1200 m', 'Δt = 10 min', 'v = 6 m/s'],
+    steps:[
+      {do:R`$$\Delta t = 10 \text{ min} \times 60 = 600 \text{ s}$$`,
+       why:D('Las unidades del SI son segundos. Convertir SIEMPRE antes de sustituir: es donde más gente pierde el punto.',
+             'SI units are seconds. ALWAYS convert before substituting: this is where most people lose the mark.')},
+      {do:R`$$\bar{v} = \frac{\Delta x}{\Delta t} = \frac{1200}{600} = +2 \text{ m/s}$$`,
+       why:D('Velocidad de ida: positiva porque va en el sentido que hemos elegido positivo.',
+             'Outward velocity: positive because it goes in the direction we chose as positive.')},
+      {do:R`$$\Delta t = \frac{\Delta x}{v} = \frac{-1200}{-6} = 200 \text{ s}$$`,
+       why:D('A la vuelta el desplazamiento es −1200 m y la velocidad −6 m/s: los dos cambian de signo, así que el tiempo sale positivo. Si te sale un tiempo negativo, has mezclado los signos.',
+             'On the way back the displacement is −1200 m and the velocity is −6 m/s: both flip sign, so the time comes out positive. A negative time means you mixed up the signs.')}
+    ],
+    result:D(R`Ida: $\bar{v} = +2$ m/s · Vuelta: $\Delta t = 200$ s`,
+             R`Out: $\bar{v} = +2$ m/s · Back: $\Delta t = 200$ s`)
+  },
+  {t:'plot', title:D('El viaje completo en una gráfica x-t','The full trip as an x-t graph'), h:300,
+    x:[0,800], y:[-100,1400], xstep:100, ystep:200, xlabel:'t (s)', ylabel:'x (m)',
+    series:[{type:'poly', pts:[[0,0],[600,1200],[800,0]], color:'accent', label:'x(t)', width:2.6}],
+    points:[{x:600,y:1200,label:D('llega a B','arrives at B')},{x:800,y:0,label:D('vuelve a A','back at A')}],
+    cap:D('La recta que sube tiene pendiente +2 m/s; la que baja es más inclinada (−6 m/s) porque corre más rápido de lo que anda. Al final x vuelve a valer 0.',
+          'The rising line has slope +2 m/s; the falling one is steeper (−6 m/s) because running is faster than walking. At the end x is back to 0.')},
+
+  {t:'h', title:D('Ejemplo del cuaderno: la vuelta al campo', 'Notebook example: a lap of the pitch'), sub:'Worked example'},
+  {t:'svg', title:D('Una vuelta completa al perímetro','One full lap of the perimeter'), svg:DIA.campo,
+    cap:D('Sales de una esquina y vuelves a la misma esquina. La distancia es el perímetro entero; el desplazamiento es exactamente cero.',
+          'You start at one corner and return to the same corner. The distance is the whole perimeter; the displacement is exactly zero.')},
+  {t:'ex',
+    title:D('Correr el perímetro y volver al punto de salida', 'Running the perimeter back to the start'),
+    stmt:D('Un campo de fútbol mide 105 m × 68 m. Das una vuelta completa corriendo por la banda y tardas 90 s.',
+           'A football pitch is 105 m × 68 m. You run one full lap along the touchline in 90 s.'),
+    given:['105 m × 68 m', 'Δt = 90 s'],
+    steps:[
+      {do:R`$$d = 105 + 105 + 68 + 68 = 346 \text{ m}$$`,
+       why:D('La distancia recorrida es el perímetro: los cuatro lados.', 'The distance travelled is the perimeter: all four sides.')},
+      {do:R`$$\text{rapidez} = \frac{d}{\Delta t} = \frac{346}{90} = 3{,}84 \text{ m/s}$$`,
+       why:D('Esto es RAPIDEZ (speed), no velocidad, porque hemos dividido la distancia.',
+             'This is SPEED, not velocity, because we divided the distance.')},
+      {do:R`$$\Delta x = 0 \;\Rightarrow\; \bar{v} = \frac{0}{90} = 0 \text{ m/s}$$`,
+       why:D('Terminas en la misma esquina de la que saliste: el desplazamiento es cero y la velocidad media también.',
+             'You finish at the same corner you started from: the displacement is zero and so is the average velocity.')}
+    ],
+    result:D(R`rapidez $= 3{,}84$ m/s, pero velocidad $= 0$ m/s`,
+             R`speed $= 3{,}84$ m/s, but velocity $= 0$ m/s`)
+  },
+
+  {t:'h', title:D('Mecánica: practica el procedimiento', 'Drill: practise the procedure'), sub:'Drill'},
+  {t:'check', kind:'num', mode:'drill',
+    q:D(R`Un coche recorre 150 m hacia el lado negativo del eje en 12 s. ¿Cuál es su velocidad media?`,
+        R`A car travels 150 m towards the negative side of the axis in 12 s. What is its average velocity?`),
+    answer:-12.5, tol:0.05, unit:'m/s',
+    explain:D(R`$\Delta x = -150$ m, así que $\bar{v} = -150/12 = -12{,}5$ m/s. El signo menos <em>es</em> parte de la respuesta: indica la dirección.`,
+              R`$\Delta x = -150$ m, so $\bar{v} = -150/12 = -12{,}5$ m/s. The minus sign <em>is</em> part of the answer: it gives the direction.`)},
+  {t:'check', kind:'num', mode:'drill',
+    q:D(R`Un ciclista tarda 25 minutos en recorrer 9 km en línea recta. ¿Cuál es su velocidad media <strong>en m/s</strong>?`,
+        R`A cyclist covers 9 km in a straight line in 25 minutes. What is the average velocity <strong>in m/s</strong>?`),
+    answer:6, tol:0.1, unit:'m/s',
+    explain:D(R`Convierte las dos unidades: $9$ km $= 9000$ m y $25$ min $= 1500$ s. Entonces $\bar{v} = 9000/1500 = 6$ m/s. Este es el paso 2 del método: convertir antes de calcular.`,
+              R`Convert both units: $9$ km $= 9000$ m and $25$ min $= 1500$ s. Then $\bar{v} = 9000/1500 = 6$ m/s. This is step 2 of the method: convert before calculating.`)},
+  {t:'check', kind:'num', mode:'drill',
+    q:D(R`Andas 300 m al este y luego 100 m al oeste, tardando 200 s en total. ¿Cuál es tu velocidad media? (este = positivo)`,
+        R`You walk 300 m east then 100 m west, taking 200 s in total. What is your average velocity? (east = positive)`),
+    answer:1, tol:0.02, unit:'m/s',
+    explain:D(R`$\Delta x = 300 - 100 = 200$ m, luego $\bar{v} = 200/200 = 1$ m/s. La distancia, en cambio, es $400$ m y la rapidez media $2$ m/s: justo el doble.`,
+              R`$\Delta x = 300 - 100 = 200$ m, so $\bar{v} = 200/200 = 1$ m/s. The distance, however, is $400$ m and the average speed $2$ m/s: exactly double.`)},
+
+  {t:'h', title:D('Concepto: ¿lo has entendido de verdad?', 'Concept: did you really get it?'), sub:'Concept'},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('Un atleta da 4 vueltas a una pista de 400 m en 6 minutos. ¿Qué es cierto?',
+        'An athlete runs 4 laps of a 400 m track in 6 minutes. Which is true?'),
+    options:[
+      D('Distancia 1600 m, desplazamiento 0 m','Distance 1600 m, displacement 0 m'),
+      D('Distancia 0 m, desplazamiento 1600 m','Distance 0 m, displacement 1600 m'),
+      D('Distancia 1600 m, desplazamiento 1600 m','Distance 1600 m, displacement 1600 m'),
+      D('Las dos valen 400 m','Both are 400 m')
+    ],
+    answer:0,
+    explain:D(R`Recorre $4 \times 400 = 1600$ m, pero como la pista es cerrada acaba en la línea de salida: $\Delta x = 0$. Es el mismo caso que la vuelta al campo de fútbol del cuaderno.`,
+              R`He covers $4 \times 400 = 1600$ m, but since the track is a closed loop he finishes on the start line: $\Delta x = 0$. Same case as the lap of the pitch in your notes.`)},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('¿Cuál de estas cantidades NO puede ser negativa nunca?',
+        'Which of these can NEVER be negative?'),
+    options:[D('La distancia','Distance'), D('El desplazamiento','Displacement'), D('La velocidad','Velocity'), D('La posición','Position')],
+    answer:0,
+    explain:D(R`La distancia es una suma de tramos recorridos: solo crece. El desplazamiento, la velocidad y la posición llevan signo porque llevan dirección (posición negativa = estás al lado negativo del origen).`,
+              R`Distance is a sum of sections travelled: it only grows. Displacement, velocity and position carry a sign because they carry direction (negative position = you are on the negative side of the origin).`)},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('Dos personas salen de casa y vuelven. Una tarda 10 min y la otra 40 min. ¿Qué tienen en común?',
+        'Two people leave home and come back. One takes 10 min, the other 40 min. What do they have in common?'),
+    options:[
+      D('Las dos tienen velocidad media 0','Both have average velocity 0'),
+      D('Las dos tienen la misma rapidez media','Both have the same average speed'),
+      D('Las dos recorren la misma distancia','Both cover the same distance'),
+      D('No tienen nada en común','They have nothing in common')
+    ],
+    answer:0,
+    explain:D(R`Las dos vuelven al punto de partida, así que $\Delta x = 0$ para las dos y por tanto $\bar{v} = 0$ para las dos, sin importar cuánto hayan tardado ni por dónde hayan ido. La rapidez media, en cambio, depende de la distancia y del tiempo de cada una, así que no tiene por qué coincidir.`,
+              R`Both return to the starting point, so $\Delta x = 0$ for both and therefore $\bar{v} = 0$ for both, regardless of how long they took or which route they used. Average speed, by contrast, depends on each one's distance and time, so it need not match.`)},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('¿Puede un objeto tener rapidez distinta de cero y velocidad media cero <strong>al mismo tiempo</strong>?',
+        'Can an object have non-zero speed and zero average velocity <strong>at the same time</strong>?'),
+    options:[
+      D('Sí, siempre que acabe donde empezó','Yes, as long as it ends where it started'),
+      D('No, si se mueve las dos son distintas de cero','No, if it moves then both are non-zero'),
+      D('Solo si se mueve en círculo','Only if it moves in a circle'),
+      D('Solo si va muy despacio','Only if it goes very slowly')
+    ],
+    answer:0,
+    explain:D(R`Sí, y es justo el caso del campo de fútbol. La rapidez media mide cuánto te has movido; la velocidad media mide cuánto has <em>avanzado</em>. Puedes moverte muchísimo sin avanzar nada. No hace falta que sea un círculo: ir y volver en línea recta también sirve.`,
+              R`Yes, and that is exactly the football pitch case. Average speed measures how much you moved; average velocity measures how far you <em>got</em>. You can move a lot without getting anywhere. It does not need to be a circle: out and back in a straight line works too.`)}
+  ]
+},
+
+/* ==================================================================== */
+'graficas-movimiento': {
+  subject: 'phys',
+  title: D('Gráficas x-t y v-t', 'x-t and v-t graphs'),
+  en: 'Position-time and velocity-time graphs',
+  lede: D('Leer un movimiento entero sin hacer una sola cuenta: la pendiente de la x-t es la velocidad, y el área de la v-t es el desplazamiento.',
+          'Reading a whole motion without a single calculation: the slope of the x-t graph is the velocity, and the area of the v-t graph is the displacement.'),
+  blocks: [
+
+  {t:'h', title:D('La pendiente es la velocidad', 'Slope is velocity'), sub:'Slope = velocity'},
+  {t:'p', html:D(R`En una gráfica de posición frente a tiempo, la <strong>pendiente</strong> <span class="en">(slope)</span> de la línea es exactamente la velocidad, porque se calculan igual: lo que sube partido por lo que avanza.`,
+                 R`On a position-time graph, the <strong>slope</strong> of the line is exactly the velocity, because they are calculated the same way: rise over run.`)},
+
+  {t:'fix',
+    title:D('la fórmula de la pendiente', 'the slope formula'),
+    wrong:'slope = Δy / Δx        →        slope = velocity',
+    why:D(R`Las dos líneas juntas se contradicen. Si la pendiente fuese $\Delta y/\Delta x$, la velocidad tendría $\Delta x$ en el <strong>denominador</strong>, y la velocidad es $\Delta x/\Delta t$: $\Delta x$ va arriba.
+      <br><br>$\Delta y/\Delta x$ es la pendiente genérica de Matemáticas, donde el eje vertical se llama $y$ y el horizontal se llama $x$. En una gráfica de Física el eje vertical es la posición $x$ y el horizontal es el tiempo $t$, así que al copiar la fórmula hay que traducir los nombres de los ejes.`,
+             R`The two lines contradict each other. If the slope were $\Delta y/\Delta x$, velocity would have $\Delta x$ in the <strong>denominator</strong>, but velocity is $\Delta x/\Delta t$: $\Delta x$ goes on top.
+      <br><br>$\Delta y/\Delta x$ is the generic Maths slope, where the vertical axis is called $y$ and the horizontal one is called $x$. On a Physics graph the vertical axis is position $x$ and the horizontal one is time $t$, so when you copy the formula you have to translate the axis names.`),
+    right:'slope = Δx / Δt = v',
+    tip:D('No copies la fórmula de la pendiente de memoria: mírala en los ejes del dibujo que tienes delante. Arriba va siempre la magnitud del eje vertical, abajo la del horizontal.',
+          'Do not copy the slope formula from memory: read it off the axes of the graph in front of you. On top goes the vertical axis quantity, underneath the horizontal one.')},
+
+  {t:'fx', tex:D(R`\text{pendiente} = \frac{\text{eje vertical}}{\text{eje horizontal}} = \frac{\Delta x}{\Delta t} = v`,
+                 R`\text{slope} = \frac{\text{vertical axis}}{\text{horizontal axis}} = \frac{\Delta x}{\Delta t} = v`),
+    cap:D('Por eso una recta significa velocidad constante', 'This is why a straight line means constant velocity')},
+  {t:'ul', items:[
+    D(R`Línea <strong>recta</strong> → velocidad <strong>constante</strong>.`, R`<strong>Straight</strong> line → <strong>constant</strong> velocity.`),
+    D(R`Línea <strong>horizontal</strong> → pendiente 0 → el objeto está <strong>parado</strong>.`, R`<strong>Horizontal</strong> line → slope 0 → the object is <strong>at rest</strong>.`),
+    D(R`Pendiente <strong>negativa</strong> → se mueve <strong>hacia atrás</strong>.`, R`<strong>Negative</strong> slope → it moves <strong>backwards</strong>.`),
+    D(R`Cuanto <strong>más inclinada</strong>, más rápido.`, R`The <strong>steeper</strong> it is, the faster.`),
+    D(R`Línea <strong>curva</strong> → la velocidad cambia → hay <strong>aceleración</strong>.`, R`<strong>Curved</strong> line → the velocity changes → there is <strong>acceleration</strong>.`)
+  ]},
+  {t:'plot', title:D('Tres pendientes distintas','Three different slopes'), h:300,
+    x:[-0.5,4], y:[-3,5], xstep:1, ystep:1, xlabel:'t (s)', ylabel:'x (m)',
+    series:[
+      {type:'poly', pts:[[0,0],[3,4]], color:'accent', label:'v = 4/3 = 1,33 m/s', width:2.6},
+      {type:'poly', pts:[[0,0],[1,4]], color:'ok', label:'v = 4/1 = 4 m/s', width:2.6},
+      {type:'poly', pts:[[0,0],[2,-2]], color:'bad', label:'v = −2/2 = −1 m/s', width:2.6}
+    ],
+    cap:D('Las tres salen del origen. La verde es la más rápida (la más inclinada); la roja tiene pendiente negativa, así que retrocede.',
+          'All three start at the origin. The green one is fastest (steepest); the red one has negative slope, so it moves backwards.')},
+
+  {t:'h', title:D('Leer un recorrido completo', 'Reading a full journey'), sub:'Reading a journey'},
+  {t:'p', html:D('Esta es la gráfica de tus apuntes, tramo a tramo. Debajo va su gráfica v-t: cada tramo recto de arriba se convierte en un escalón horizontal abajo.',
+                 'This is the graph from your notes, section by section. Below is its v-t graph: each straight section above becomes a horizontal step below.')},
+  {t:'plot', title:D('Gráfica x-t por tramos','x-t graph, section by section'), h:300,
+    x:[0,12], y:[-2,3], xstep:1, ystep:1, xlabel:'t (s)', ylabel:'x (m)',
+    series:[{type:'poly', pts:[[0,0],[2,2],[4,2],[6,0],[7,-1],[9,-1],[12,0]], color:'accent', label:'x(t)', width:2.6}],
+    points:[{x:1,y:1,label:'A'},{x:3,y:2,label:'B'},{x:5,y:1,label:'C'},{x:6.5,y:-0.5,label:'D'},{x:8,y:-1,label:'E'},{x:10.5,y:-0.5,label:'F'}],
+    cap:D('A sube, B es llano, C baja, D sigue bajando, E vuelve a ser llano, F sube despacio hasta volver al origen.',
+          'A rises, B is flat, C falls, D keeps falling, E is flat again, F rises slowly back to the origin.')},
+  {t:'plot', title:D('Su gráfica v-t','Its v-t graph'), h:260,
+    x:[0,12], y:[-1.5,1.5], xstep:1, ystep:0.5, xlabel:'t (s)', ylabel:'v (m/s)',
+    series:[{type:'poly', pts:[[0,1],[2,1],[2,0],[4,0],[4,-1],[7,-1],[7,0],[9,0],[9,0.33],[12,0.33]], color:'phys2', label:'v(t)', width:2.6}],
+    cap:D('Cada tramo recto de la x-t es un escalón horizontal aquí. A: +1 m/s. B: 0 (parado). C y D: −1 m/s. E: 0. F: 1/3 ≈ 0,33 m/s.',
+          'Each straight section of the x-t graph is a horizontal step here. A: +1 m/s. B: 0 (at rest). C and D: −1 m/s. E: 0. F: 1/3 ≈ 0.33 m/s.')},
+  {t:'ex',
+    title:D('Sacar la velocidad de cada tramo','Getting the velocity of each section'),
+    stmt:D('Calcula la velocidad de los tramos A, B y C de la gráfica de arriba.',
+           'Find the velocity of sections A, B and C from the graph above.'),
+    given:['A: (0 s, 0 m) → (2 s, 2 m)', 'B: (2 s, 2 m) → (4 s, 2 m)', 'C: (4 s, 2 m) → (6 s, 0 m)'],
+    steps:[
+      {do:R`$$v_A = \frac{2 - 0}{2 - 0} = +1 \text{ m/s}$$`,
+       why:D('Sube 2 m en 2 s. Positiva: se aleja del origen.', 'It rises 2 m in 2 s. Positive: moving away from the origin.')},
+      {do:R`$$v_B = \frac{2 - 2}{4 - 2} = \frac{0}{2} = 0 \text{ m/s}$$`,
+       why:D('La posición no cambia: está parado. Un tramo llano NO significa "va a velocidad constante hacia adelante", significa velocidad cero.',
+             'The position does not change: it is at rest. A flat section does NOT mean "moving forward at constant velocity", it means zero velocity.')},
+      {do:R`$$v_C = \frac{0 - 2}{6 - 4} = \frac{-2}{2} = -1 \text{ m/s}$$`,
+       why:D('Baja: vuelve hacia el origen, por eso el signo es negativo.', 'It falls: it returns towards the origin, hence the negative sign.')}
+    ],
+    result:R`$v_A = +1$ m/s, $v_B = 0$ m/s, $v_C = -1$ m/s`
+  },
+  {t:'warn', title:D('Error típico','Common mistake'), html:D(
+    R`Confundir la gráfica x-t con "el dibujo del camino". Una x-t que sube <em>no</em> significa que el objeto suba una cuesta: significa que su posición aumenta. Un coche que va en horizontal por una carretera recta tiene una x-t que sube.`,
+    R`Confusing the x-t graph with "a picture of the path". A rising x-t does <em>not</em> mean the object goes uphill: it means its position increases. A car driving along a flat straight road has a rising x-t graph.`)},
+
+  {t:'h', title:D('El área de la v-t es el desplazamiento', 'The area under v-t is the displacement'), sub:'Area under v-t'},
+  {t:'p', html:D(R`En una gráfica velocidad-tiempo, el <strong>área</strong> entre la línea y el eje del tiempo te da el desplazamiento. Cuadra con las unidades: m/s × s = m.`,
+                 R`On a velocity-time graph, the <strong>area</strong> between the line and the time axis gives the displacement. The units work out: m/s × s = m.`)},
+  {t:'key', title:D('Área con signo','Signed area'), html:D(
+    R`El área <strong>por encima</strong> del eje cuenta positiva y la que está <strong>por debajo</strong> cuenta negativa. Si quieres la <em>distancia</em>, sumas las dos en valor absoluto; si quieres el <em>desplazamiento</em>, las restas.`,
+    R`Area <strong>above</strong> the axis counts as positive and area <strong>below</strong> counts as negative. For the <em>distance</em>, add both in absolute value; for the <em>displacement</em>, subtract them.`)},
+  {t:'guided',
+    title:D('Desplazamiento y distancia de una v-t','Displacement and distance from a v-t graph'),
+    stmt:D('Un objeto se mueve a +3 m/s durante 4 s, después se para 2 s, y luego va a −2 m/s durante 5 s. Calcula el desplazamiento total y la distancia total.',
+           'An object moves at +3 m/s for 4 s, then stops for 2 s, then moves at −2 m/s for 5 s. Find the total displacement and the total distance.'),
+    given:['+3 m/s, 4 s', '0 m/s, 2 s', '−2 m/s, 5 s'],
+    steps:[
+      {ask:D('Área del primer tramo','Area of the first section'),
+       hint:D('Es un rectángulo: base (tiempo) por altura (velocidad).','It is a rectangle: base (time) times height (velocity).'),
+       sol:R`$$\Delta x_1 = 3 \times 4 = +12 \text{ m}$$`},
+      {ask:D('Área del segundo tramo','Area of the second section'),
+       hint:D('La velocidad es cero, así que el rectángulo no tiene altura.','The velocity is zero, so the rectangle has no height.'),
+       sol:R`$$\Delta x_2 = 0 \times 2 = 0 \text{ m}$$`},
+      {ask:D('Área del tercer tramo','Area of the third section'),
+       hint:D('La velocidad es negativa, así que el área queda por debajo del eje y cuenta negativa.',
+              'The velocity is negative, so the area is below the axis and counts as negative.'),
+       sol:R`$$\Delta x_3 = (-2) \times 5 = -10 \text{ m}$$`},
+      {ask:D('Desplazamiento total y distancia total','Total displacement and total distance'),
+       hint:D('Para el desplazamiento se suman con signo; para la distancia, en valor absoluto.',
+              'For displacement add them with their signs; for distance use absolute values.'),
+       sol:D(R`$$\Delta x = 12 + 0 - 10 = +2 \text{ m} \qquad d = 12 + 0 + 10 = 22 \text{ m}$$
+         Acaba solo 2 m por delante del punto de partida, aunque ha recorrido 22 m.`,
+             R`$$\Delta x = 12 + 0 - 10 = +2 \text{ m} \qquad d = 12 + 0 + 10 = 22 \text{ m}$$
+         It ends up only 2 m ahead of the starting point, even though it travelled 22 m.`)}
+    ],
+    result:R`$\Delta x = +2$ m, $d = 22$ m`
+  },
+
+  {t:'h', title:D('Mecánica: practica el procedimiento', 'Drill: practise the procedure'), sub:'Drill'},
+  {t:'check', kind:'num', mode:'drill',
+    q:D(R`En la v-t de arriba, el tramo A dura de $t=0$ a $t=2$ s con $v = 1$ m/s. ¿Cuánto se ha desplazado en ese tramo?`,
+        R`On the v-t graph above, section A runs from $t=0$ to $t=2$ s at $v = 1$ m/s. What is the displacement over that section?`),
+    answer:2, tol:0.05, unit:'m',
+    explain:D(R`Área del rectángulo: $1 \times 2 = 2$ m. Y efectivamente en la gráfica x-t el objeto pasa de 0 m a 2 m.`,
+              R`Rectangle area: $1 \times 2 = 2$ m. And indeed the x-t graph shows the object going from 0 m to 2 m.`)},
+  {t:'check', kind:'num', mode:'drill',
+    q:D(R`En una gráfica x-t, un objeto pasa del punto (2 s, 8 m) al punto (6 s, −4 m) en línea recta. ¿Cuál es su velocidad?`,
+        R`On an x-t graph, an object goes in a straight line from (2 s, 8 m) to (6 s, −4 m). What is its velocity?`),
+    answer:-3, tol:0.05, unit:'m/s',
+    explain:D(R`$v = \dfrac{-4 - 8}{6 - 2} = \dfrac{-12}{4} = -3$ m/s. Resta siempre <em>final menos inicial</em>, en ese orden, en los dos ejes.`,
+              R`$v = \dfrac{-4 - 8}{6 - 2} = \dfrac{-12}{4} = -3$ m/s. Always subtract <em>final minus initial</em>, in that order, on both axes.`)},
+
+  {t:'h', title:D('Concepto: ¿lo has entendido de verdad?', 'Concept: did you really get it?'), sub:'Concept'},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('En una gráfica x-t, una línea horizontal significa que el objeto…',
+        'On an x-t graph, a horizontal line means the object…'),
+    options:[D('Está parado','Is at rest'), D('Se mueve a velocidad constante','Moves at constant velocity'),
+             D('Está acelerando','Is accelerating'), D('Ha vuelto al origen','Has returned to the origin')],
+    answer:0,
+    explain:D(R`Pendiente cero → $v = 0$. La posición no cambia con el tiempo, así que está quieto en ese punto, que no tiene por qué ser el origen.`,
+              R`Zero slope → $v = 0$. The position does not change with time, so it is stationary at that point, which need not be the origin.`)},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('Dos rectas en una gráfica x-t se cruzan en un punto. ¿Qué significa ese cruce?',
+        'Two straight lines on an x-t graph cross at a point. What does the crossing mean?'),
+    options:[
+      D('Los dos objetos están en el mismo sitio a la vez','Both objects are in the same place at the same time'),
+      D('Los dos objetos llevan la misma velocidad','Both objects have the same velocity'),
+      D('Los dos objetos se paran','Both objects stop'),
+      D('Los dos han recorrido la misma distancia','Both have travelled the same distance')
+    ],
+    answer:0,
+    explain:D(R`Un punto de la gráfica es un par (tiempo, posición). Si las dos líneas pasan por el mismo punto, en ese instante ocupan la misma posición: se encuentran. La misma velocidad serían rectas <em>paralelas</em>, no cruzadas.`,
+              R`A point on the graph is a pair (time, position). If both lines pass through the same point, at that instant they are at the same position: they meet. Equal velocity would mean <em>parallel</em> lines, not crossing ones.`)},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('Una gráfica x-t es una curva cada vez más inclinada. ¿Qué está pasando?',
+        'An x-t graph is a curve getting steeper and steeper. What is happening?'),
+    options:[D('Acelera','It is accelerating'), D('Va a velocidad constante','It moves at constant velocity'),
+             D('Está parado','It is at rest'), D('Se mueve hacia atrás','It moves backwards')],
+    answer:0,
+    explain:D(R`Más inclinada = más pendiente = más velocidad. Si la velocidad va cambiando, hay aceleración. Ojo: la <em>gráfica</em> se curva, pero el objeto puede ir en línea recta perfectamente.`,
+              R`Steeper = bigger slope = greater velocity. If the velocity keeps changing, there is acceleration. Careful: the <em>graph</em> curves, but the object may well be moving in a perfectly straight line.`)},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('En una gráfica v-t, el área total sale 0 pero la línea no está pegada al eje. ¿Qué ha hecho el objeto?',
+        'On a v-t graph the total area comes to 0, but the line is not sitting on the axis. What did the object do?'),
+    options:[
+      D('Se ha movido y ha vuelto al punto de partida','It moved and returned to its starting point'),
+      D('No se ha movido en ningún momento','It never moved at all'),
+      D('Ha ido siempre hacia adelante','It only ever moved forwards'),
+      D('La gráfica está mal dibujada','The graph is drawn wrong')
+    ],
+    answer:0,
+    explain:D(R`Área total 0 significa desplazamiento 0, no inmovilidad. Hubo área positiva (ida) y la misma área negativa (vuelta), y se cancelan. La distancia recorrida, en cambio, es la suma de las dos áreas en valor absoluto y no es cero.`,
+              R`Zero total area means zero displacement, not stillness. There was positive area (out) and the same negative area (back), and they cancel. The distance travelled, by contrast, is the sum of both areas in absolute value and is not zero.`)}
+  ]
+},
+
+/* ==================================================================== */
+'aceleracion': {
+  subject: 'phys',
+  title: D('Aceleración y las tres ecuaciones', 'Acceleration and the three equations'),
+  en: 'Acceleration & the kinematic equations',
+  lede: D('Cuando la velocidad cambia, v = Δx/Δt deja de valer. Entran las tres ecuaciones del movimiento con aceleración constante: DOVE, t-squared y timeless.',
+          'When the velocity changes, v = Δx/Δt no longer applies. In come the three constant-acceleration equations: DOVE, t-squared and timeless.'),
+  blocks: [
+
+  {t:'h', title:D('Qué es la aceleración', 'What acceleration is'), sub:'Definition'},
+  {t:'p', html:D(R`La <strong>aceleración</strong> <span class="en">(acceleration, a)</span> mide cómo de rápido cambia la <em>velocidad</em>. Su unidad es m/s², que se lee "metros por segundo, por segundo": cuántos m/s ganas o pierdes cada segundo.`,
+                 R`<strong>Acceleration</strong> (a) measures how fast the <em>velocity</em> changes. Its unit is m/s², read as "metres per second, per second": how many m/s you gain or lose each second.`)},
+  {t:'fx', tex:R`a = \frac{\Delta v}{\Delta t} = \frac{v_f - v_i}{\Delta t}`,
+    cap:D('v_f = velocidad final · v_i = velocidad inicial', 'v_f = final velocity · v_i = initial velocity')},
+
+  {t:'fix',
+    title:D('Δv/t frente a Δv/Δt', 'Δv/t versus Δv/Δt'),
+    wrong:'a = Δv / t',
+    why:D(R`El denominador tiene que ser $\Delta t$, el <em>intervalo</em> de tiempo, no $t$, el instante del reloj. Coinciden solo cuando el cronómetro empieza en $t=0$, que es el caso de casi todos los ejercicios de clase, y por eso el resultado te sale bien.
+      <br><br>Pero si un problema empieza en $t = 4$ s y acaba en $t = 9$ s, entonces $\Delta t = 9 - 4 = 5$ s, no 9 s. Con la fórmula mal escrita dividirías entre 9 y el ejercicio entero se cae.`,
+             R`The denominator must be $\Delta t$, the time <em>interval</em>, not $t$, the clock reading. They agree only when the stopwatch starts at $t=0$, which is the case in almost every class exercise, and that is why your answers come out right.
+      <br><br>But if a problem starts at $t = 4$ s and ends at $t = 9$ s, then $\Delta t = 9 - 4 = 5$ s, not 9 s. With the formula written wrongly you would divide by 9 and lose the whole question.`),
+    right:'a = Δv / Δt = (v_f − v_i) / (t_f − t_i)',
+    tip:D('Escribe la delta también en el denominador, siempre. Te cuesta un trazo y te cubre el caso en que el problema no empieza en cero.',
+          'Write the delta in the denominator too, always. It costs you one stroke of the pen and covers the case where the problem does not start at zero.')},
+
+  {t:'svg', title:D('Los cuatro casos de signos','The four sign cases'), svg:DIA.signos,
+    cap:D('Verde = velocidad, rojo = aceleración. Si apuntan al mismo lado, el objeto acelera; si apuntan a lados contrarios, frena.',
+          'Green = velocity, red = acceleration. Pointing the same way: it speeds up. Pointing opposite ways: it slows down.')},
+  {t:'ul', items:[
+    D(R`$v$ y $a$ con el <strong>mismo signo</strong> → va <strong>cada vez más rápido</strong>.`, R`$v$ and $a$ with the <strong>same sign</strong> → it goes <strong>faster and faster</strong>.`),
+    D(R`$v$ y $a$ con <strong>signos contrarios</strong> → <strong>frena</strong>.`, R`$v$ and $a$ with <strong>opposite signs</strong> → it <strong>slows down</strong>.`),
+    D(R`$a = 0$ → velocidad constante.`, R`$a = 0$ → constant velocity.`)
+  ]},
+  {t:'warn', title:D('Error típico: "aceleración negativa = ir hacia atrás"','Common mistake: "negative acceleration = moving backwards"'), html:D(
+    R`Falso. Aceleración negativa significa que la velocidad <em>disminuye</em>. Si vas a +15 m/s con $a = -5$ m/s², sigues yendo hacia adelante, solo que pierdes 5 m/s cada segundo. Es exactamente lo que hace un coche al frenar.`,
+    R`False. Negative acceleration means the velocity <em>decreases</em>. At +15 m/s with $a = -5$ m/s² you are still moving forwards, just losing 5 m/s every second. That is exactly what a braking car does.`)},
+  {t:'svg', title:D('Un coche frenando','A braking car'), svg:DIA.frenada,
+    cap:D('La velocidad apunta hacia adelante y la aceleración hacia atrás. El coche sigue avanzando, pero cada vez menos deprisa, hasta pararse a los 3 s.',
+          'The velocity points forwards and the acceleration backwards. The car keeps moving forwards, but slower and slower, until it stops after 3 s.')},
+
+  {t:'h', title:D('El aviso en rojo del cuaderno', 'The red warning in your notes'), sub:'Restriction'},
+  {t:'key', title:D('v = Δx/Δt solo vale con VELOCIDAD CONSTANTE','v = Δx/Δt is for CONSTANT VELOCITY ONLY'), html:D(
+    R`En cuanto hay aceleración, esa fórmula deja de servir para relacionar posición y tiempo, porque la velocidad ya no es la misma durante todo el trayecto. Tienes que usar una de las tres ecuaciones de abajo. Es el aviso que tienes recuadrado en rojo en el cuaderno, y es el fallo número uno de esta unidad.`,
+    R`As soon as there is acceleration, that formula stops relating position and time, because the velocity is no longer the same throughout the journey. You must use one of the three equations below. This is the warning boxed in red in your notes, and it is the number one mistake in this unit.`)},
+
+  {t:'h', title:D('Las tres ecuaciones', 'The three equations'), sub:'The equations'},
+  {t:'p', html:D('Cada una lleva un mote porque cada una <strong>ignora</strong> una variable distinta. Elegir la ecuación correcta se reduce a mirar qué variable no te interesa.',
+                 'Each one has a nickname because each one <strong>ignores</strong> a different variable. Choosing the right equation comes down to spotting which variable you do not care about.')},
+  {t:'fx', tex:R`\textbf{DOVE:}\quad a = \frac{\Delta v}{\Delta t}`,
+    cap:D('No aparece Δx · úsala cuando no te importe la distancia', 'No Δx · use it when distance does not matter')},
+  {t:'fx', tex:R`\textbf{t-squared:}\quad \Delta x = v_i\,t + \tfrac{1}{2}a\,t^{2}`,
+    cap:D('No aparece v_f · úsala cuando no conozcas la velocidad final', 'No v_f · use it when you do not know the final velocity')},
+  {t:'fx', tex:R`\textbf{timeless:}\quad v_f^{\,2} = v_i^{\,2} + 2a\,\Delta x`,
+    cap:D('No aparece t · úsala cuando no te den el tiempo', 'No t · use it when you are not given the time')},
+  {t:'note', title:D('Cómo elegir en 5 segundos','How to choose in 5 seconds'), html:D(
+    R`Escribe en una esquina los cinco símbolos: $v_i$, $v_f$, $a$, $t$, $\Delta x$. Tacha los tres que te dan y el que te piden. El que te sobra es el que la ecuación debe <strong>ignorar</strong>: esa es tu ecuación.`,
+    R`Write the five symbols in a corner: $v_i$, $v_f$, $a$, $t$, $\Delta x$. Cross out the three you are given and the one you are asked for. The leftover one is what your equation must <strong>ignore</strong>: that is your equation.`)},
+
+  {t:'h', title:D('Ejemplo del cuaderno: la frenada', 'Notebook example: braking'), sub:'Worked example'},
+  {t:'ex',
+    title:D('¿Cuánto tarda en parar y cuánto recorre?','How long to stop and how far?'),
+    stmt:D('Un coche circula a 15 m/s y frena con una aceleración de −5 m/s² hasta pararse del todo.',
+           'A car travels at 15 m/s and brakes with an acceleration of −5 m/s² until it stops completely.'),
+    given:['vᵢ = 15 m/s', 'a = −5 m/s²', 'v_f = 0 m/s', 't = ?', 'Δx = ?'],
+    steps:[
+      {do:R`$$a = \frac{v_f - v_i}{t} \;\Longrightarrow\; t = \frac{v_f - v_i}{a} = \frac{0 - 15}{-5} = 3 \text{ s}$$`,
+       why:D('DOVE, porque no interviene Δx. Fíjate en que hay que DESPEJAR t primero: la ecuación de partida calcula a, no t. Menos entre menos da más, así que el tiempo sale positivo.',
+             'DOVE, because Δx is not involved. Note that you must REARRANGE for t first: the starting equation gives a, not t. Minus over minus gives plus, so the time comes out positive.')},
+      {do:R`$$\Delta x = v_i t + \tfrac{1}{2}a t^{2} = (15)(3) + \tfrac{1}{2}(-5)(3)^{2}$$`,
+       why:D('Ahora t-squared, porque ya conocemos el tiempo y queremos la distancia.',
+             'Now t-squared, because we know the time and want the distance.')},
+      {do:R`$$\Delta x = 45 - 22{,}5 = 22{,}5 \text{ m}$$`,
+       why:D('Ojo con el cuadrado: (3)² = 9, y ½(−5)(9) = −22,5. El cuadrado se aplica solo al tiempo; el signo menos viene de la a.',
+             'Careful with the square: (3)² = 9, and ½(−5)(9) = −22.5. The square applies only to the time; the minus sign comes from a.')},
+      {do:R`$$v_f^{\,2} = v_i^{\,2} + 2a\Delta x \;\Longrightarrow\; \Delta x = \frac{-v_i^{\,2}}{2a} = \frac{-225}{-10} = 22{,}5 \text{ m}$$`,
+       why:D('Paso 6 del método: comprobación con la timeless. Sale lo mismo sin usar el tiempo, así que el resultado es correcto.',
+             'Step 6 of the method: check with timeless. Same answer without using the time, so the result is right.')}
+    ],
+    result:R`$t = 3$ s, $\Delta x = 22{,}5$ m`
+  },
+
+  {t:'fix',
+    title:D('la línea que empieza en a y acaba en segundos', 'the line that starts at a and ends in seconds'),
+    wrong:'a = Δv/Δt = (v_f − v_i)/t = (0 − 15)/(−5) = 3 s',
+    why:D(R`El número final (3 s) es correcto, pero la línea no lo es: empieza declarando <em>"a ="</em>, que se mide en m/s², y termina dando un resultado en <strong>segundos</strong>. Los dos lados de una igualdad tienen que tener las mismas unidades, siempre.
+      <br><br>Lo que hiciste de verdad fue despejar $t$ y luego sustituir, que está perfecto. Lo que falta es <em>escribirlo</em>: el despeje se saltó y quedó una cadena de igualdades que dice que una aceleración es igual a un tiempo.`,
+             R`The final number (3 s) is correct, but the line is not: it starts by declaring <em>"a ="</em>, measured in m/s², and ends with a result in <strong>seconds</strong>. Both sides of an equation must always have the same units.
+      <br><br>What you actually did was rearrange for $t$ and then substitute, which is perfect. What is missing is <em>writing it down</em>: the rearrangement was skipped, leaving a chain of equalities claiming an acceleration equals a time.`),
+    right:'t = (v_f − v_i) / a = (0 − 15) / (−5) = 3 s',
+    tip:D('Antes de teclear nada en la calculadora, escribe la línea del despeje sola, con la incógnita a la izquierda. Es un renglón más y es el punto del procedimiento.',
+          'Before typing anything into the calculator, write the rearranged line on its own, with the unknown on the left. One extra line, and it is the method mark.')},
+
+  {t:'plot', title:D('La frenada en una v-t','The braking on a v-t graph'), h:280,
+    x:[0,4], y:[0,17], xstep:0.5, ystep:2, xlabel:'t (s)', ylabel:'v (m/s)',
+    series:[{type:'poly', pts:[[0,15],[3,0]], color:'accent', label:D('v(t), pendiente = a = −5 m/s²','v(t), slope = a = −5 m/s²'), width:2.6}],
+    fill:{pts:[[0,15],[3,0],[0,0]], label:D('área = Δx = 22,5 m','area = Δx = 22.5 m')},
+    cap:D('El triángulo bajo la recta tiene base 3 s y altura 15 m/s: área = ½(3)(15) = 22,5 m. El mismo resultado por un camino totalmente distinto.',
+          'The triangle under the line has base 3 s and height 15 m/s: area = ½(3)(15) = 22.5 m. The same result by a completely different route.')},
+
+  {t:'h', title:D('Ejemplo del cuaderno: el coche que arranca', 'Notebook example: the car pulling away'), sub:'Worked example'},
+  {t:'ex',
+    title:D('De parado a 25 m/s en 8 segundos','From rest to 25 m/s in 8 seconds'),
+    stmt:D('Un coche parte del reposo y alcanza 25 m/s en 8 s con aceleración constante. ¿Qué distancia recorre?',
+           'A car starts from rest and reaches 25 m/s in 8 s with constant acceleration. How far does it travel?'),
+    given:['vᵢ = 0 m/s', 'v_f = 25 m/s', 't = 8 s', 'Δx = ?'],
+    steps:[
+      {do:R`$$a = \frac{\Delta v}{\Delta t} = \frac{25 - 0}{8} = 3{,}125 \text{ m/s}^2$$`,
+       why:D('"Parte del reposo" (from rest) siempre quiere decir vᵢ = 0. Es un dato disfrazado de palabra: búscalo en todos los enunciados.',
+             '"From rest" always means vᵢ = 0. It is a number disguised as a phrase: look for it in every question.')},
+      {do:R`$$\Delta x = (0)(8) + \tfrac{1}{2}(3{,}125)(8)^{2} = 100 \text{ m}$$`,
+       why:D('El primer término se anula entero porque vᵢ = 0. Comprobación con la timeless: (25² − 0)/(2 · 3,125) = 100 m ✓',
+             'The first term vanishes entirely because vᵢ = 0. Check with timeless: (25² − 0)/(2 · 3.125) = 100 m ✓')}
+    ],
+    result:R`$a = 3{,}125$ m/s², $\Delta x = 100$ m`
+  },
+  {t:'plot', title:D('x-t del coche: ya no es una recta','The car x-t graph: no longer a straight line'), h:290,
+    x:[0,8], y:[0,110], xstep:1, ystep:20, xlabel:'t (s)', ylabel:'x (m)',
+    series:[{type:'fn', f:function(t){return 0.5*3.125*t*t;}, color:'accent', label:'x = ½at²', width:2.6}],
+    points:[{x:8,y:100,label:'100 m'}],
+    cap:D('Con aceleración constante la gráfica x-t es una PARÁBOLA, no una recta: cada vez más inclinada porque cada vez va más rápido.',
+          'With constant acceleration the x-t graph is a PARABOLA, not a straight line: steeper and steeper because it keeps going faster.')},
+
+  {t:'h', title:D('Ejercicio guiado: la rampa', 'Guided practice: the ramp'), sub:'Guided practice'},
+  {t:'svg', title:D('Subir la rampa y volver','Up the ramp and back'), svg:DIA.rampa,
+    cap:D('Tomamos como positivo el sentido de subida. La aceleración apunta rampa abajo todo el rato, tanto mientras sube como mientras baja.',
+          'We take uphill as positive. The acceleration points down the ramp the whole time, both going up and coming down.')},
+  {t:'guided',
+    title:D('Sube, se para y vuelve a bajar','Up, stop, and back down'),
+    stmt:D('Subes una rampa en monopatín a 10 m/s. La rampa te frena con a = −5 m/s². (1) ¿Hasta dónde subes antes de pararte? (2) ¿Cuánto tardas en volver al punto de partida?',
+           'You ride up a ramp on a skateboard at 10 m/s. The ramp slows you with a = −5 m/s². (1) How far up do you get before stopping? (2) How long until you are back at the start?'),
+    given:['vᵢ = 10 m/s', 'a = −5 m/s²', 'v_f = 0 m/s'],
+    steps:[
+      {ask:D('¿Cuánto tardas en pararte?','How long until you stop?'),
+       hint:D(R`Te dan $v_i$, $v_f$ y $a$, y buscas $t$: no interviene $\Delta x$, así que es DOVE. Despeja $t$ antes de sustituir.`,
+              R`You are given $v_i$, $v_f$ and $a$, and want $t$: $\Delta x$ is not involved, so it is DOVE. Rearrange for $t$ before substituting.`),
+       sol:R`$$t = \frac{v_f - v_i}{a} = \frac{0 - 10}{-5} = 2 \text{ s}$$`},
+      {ask:D('¿Qué distancia has subido en esos 2 s?','How far up did you go in those 2 s?'),
+       hint:D(R`Ya tienes el tiempo. Usa t-squared con $v_i = 10$, $a = -5$, $t = 2$.`,
+              R`You have the time now. Use t-squared with $v_i = 10$, $a = -5$, $t = 2$.`),
+       sol:R`$$\Delta x = (10)(2) + \tfrac{1}{2}(-5)(2)^{2} = 20 - 10 = 10 \text{ m}$$`},
+      {ask:D('Ahora bajas. ¿Con qué velocidad inicial empieza la bajada?','Now you come down. What is the initial velocity of the descent?'),
+       hint:D('En el punto más alto te has parado. Ese instante es a la vez el final de la subida y el principio de la bajada.',
+              'At the highest point you stopped. That instant is both the end of the climb and the start of the descent.'),
+       sol:D(R`$v_i = 0$ m/s. Te quedas un instante parado arriba y entonces empiezas a bajar, todavía con $a = -5$ m/s²: la rampa no ha cambiado.`,
+             R`$v_i = 0$ m/s. You are momentarily stationary at the top and then start coming down, still with $a = -5$ m/s²: the ramp has not changed.`)},
+      {ask:D('¿Cuánto tardas en bajar los 10 m?','How long to come back down the 10 m?'),
+       hint:D(R`Ahora $\Delta x = -10$ m (bajas, así que es negativo) y $v_i = 0$. Despeja $t$ de la t-squared.`,
+              R`Now $\Delta x = -10$ m (you are going down, so it is negative) and $v_i = 0$. Rearrange t-squared for $t$.`),
+       sol:R`$$t = \sqrt{\frac{2\Delta x}{a}} = \sqrt{\frac{2(-10)}{-5}} = \sqrt{4} = 2 \text{ s}$$`},
+      {ask:D('Entonces, ¿cuánto tardas en volver a donde empezaste?','So how long until you are back where you started?'),
+       hint:D('La pregunta es por el viaje completo: subida MÁS bajada, no solo uno de los dos.',
+              'The question is about the whole trip: up PLUS down, not just one of them.'),
+       sol:D(R`$$t_{\text{total}} = 2 + 2 = 4 \text{ s}$$
+         Con aceleración constante la subida y la bajada tardan lo mismo. Vuelves al punto de partida a 10 m/s, pero en sentido contrario: $-10$ m/s.`,
+             R`$$t_{\text{total}} = 2 + 2 = 4 \text{ s}$$
+         With constant acceleration, going up and coming down take the same time. You return to the start at 10 m/s, but in the opposite direction: $-10$ m/s.`)}
+    ],
+    result:D(R`Subes $10$ m y tardas $4$ s en volver`, R`You go $10$ m up and take $4$ s to get back`)
+  },
+
+  {t:'fix',
+    title:D('el tiempo de vuelta en la rampa', 'the return time on the ramp'),
+    wrong:'How long does it take her to get back where she started?  →  2 s',
+    why:D(R`Los 2 s son solo el tramo de <strong>bajada</strong>: es lo que sale de $t=\sqrt{2\Delta x/a}$, la cuenta que está escrita justo debajo. Pero la pregunta va del punto de partida al punto de partida, y ese viaje tiene dos tramos: primero sube (2 s) y después baja (2 s).
+      <br><br>Es un error de lectura, no de cálculo: la cuenta está bien hecha, pero responde a una pregunta distinta de la que te hacían.`,
+             R`The 2 s is only the <strong>descent</strong>: it is what comes out of $t=\sqrt{2\Delta x/a}$, the calculation written right below. But the question goes from the starting point back to the starting point, and that trip has two parts: up (2 s) and then down (2 s).
+      <br><br>It is a reading error, not a calculation error: the arithmetic is fine, it just answers a different question from the one asked.`),
+    right:'t = 2 s (subida) + 2 s (bajada) = 4 s',
+    tip:D('Antes de dar un tiempo por respuesta, pregúntate en voz alta: <em>¿desde qué instante, hasta qué instante?</em> Si la respuesta tiene dos tramos, hay que sumarlos.',
+          'Before giving a time as your answer, ask yourself out loud: <em>from which instant, to which instant?</em> If the answer has two parts, add them.')},
+
+  {t:'h', title:D('Cuando el problema NO se puede resolver', 'When the problem CANNOT be solved'), sub:'Not enough information'},
+  {t:'p', html:D(R`En el cuaderno hay un caso tachado con "not possible": un coche con $v_i = -10$ m/s que recorre 42 m, y te piden $t$ y $a$. Está bien tachado, y merece la pena entender por qué.`,
+                 R`In your notes there is a case crossed out with "not possible": a car with $v_i = -10$ m/s covering 42 m, asked for $t$ and $a$. It is rightly crossed out, and it is worth understanding why.`)},
+  {t:'note', title:D('Contar incógnitas','Counting unknowns'), html:D(
+    R`La t-squared $\Delta x = v_i t + \frac{1}{2}at^2$ tiene aquí <strong>dos</strong> incógnitas ($a$ y $t$) y es <strong>una sola</strong> ecuación. Con una ecuación no se pueden despejar dos incógnitas: harían falta dos datos independientes. Si te pasa esto en un examen, vuelve a leer el enunciado: casi siempre hay un dato escondido en una palabra ("parte del reposo", "hasta detenerse").`,
+    R`Here t-squared $\Delta x = v_i t + \frac{1}{2}at^2$ has <strong>two</strong> unknowns ($a$ and $t$) and is <strong>one single</strong> equation. One equation cannot give two unknowns: you would need two independent pieces of data. If this happens in an exam, reread the question: there is almost always a number hidden in a phrase ("from rest", "until it stops").`)},
+
+  {t:'fix',
+    title:D('redondear demasiado pronto', 'rounding too early'),
+    wrong:'t = 6,7 s  →  Δx = 25(6,7) + ½(−1,5)(6,7)² = 133 m',
+    why:D(R`Si sustituyes el 6,7 redondeado, la cuenta da <strong>133,8 m</strong>, no 133. El 133 que está escrito es el valor bueno, pero no es el que sale de los números que hay justo encima: se ha colado un redondeo intermedio.
+      <br><br>El tiempo exacto es $t = 10/1{,}5 = 6{,}\overline{6}$ s, y con él salen $133{,}3$ m. Medio metro de diferencia por redondear antes de tiempo, y en un problema con más pasos el error se multiplica.`,
+             R`If you substitute the rounded 6.7, the calculation gives <strong>133.8 m</strong>, not 133. The 133 written down is the correct value, but it is not what comes out of the numbers written just above it: an intermediate rounding crept in.
+      <br><br>The exact time is $t = 10/1{,}5 = 6{,}\overline{6}$ s, and with it you get $133{,}3$ m. Half a metre of difference from rounding too early, and in a longer problem the error multiplies.`),
+    right:'Δx = (v_f² − vᵢ²) / 2a = (15² − 25²) / (2(−1,5)) = 133,3 m',
+    note:D(R`Esta versión usa la <em>timeless</em>, que no necesita el tiempo y por tanto no puede arrastrar el redondeo.`,
+           R`This version uses <em>timeless</em>, which does not need the time and therefore cannot carry the rounding error.`),
+    tip:D('Arrastra todos los decimales en los pasos intermedios (o déjalos en la memoria de la calculadora) y redondea solo el número que escribes como respuesta final.',
+          'Carry all the decimals through the intermediate steps (or keep them in the calculator memory) and round only the number you write as your final answer.')},
+
+  {t:'h', title:D('Mecánica: practica el procedimiento', 'Drill: practise the procedure'), sub:'Drill'},
+  {t:'check', kind:'num', mode:'drill',
+    q:D(R`Una moto pasa de 0 a 30 m/s en 6 s. ¿Cuál es su aceleración?`,
+        R`A motorbike goes from 0 to 30 m/s in 6 s. What is its acceleration?`),
+    answer:5, tol:0.05, unit:'m/s²',
+    explain:D(R`DOVE: $a = (30-0)/6 = 5$ m/s². Gana 5 m/s cada segundo.`,
+              R`DOVE: $a = (30-0)/6 = 5$ m/s². It gains 5 m/s every second.`)},
+  {t:'check', kind:'num', mode:'drill',
+    q:D(R`Con esa misma moto ($v_i=0$, $a=5$ m/s²), ¿qué distancia recorre en esos 6 s?`,
+        R`With the same motorbike ($v_i=0$, $a=5$ m/s²), how far does it travel in those 6 s?`),
+    answer:90, tol:0.5, unit:'m',
+    explain:D(R`t-squared: $\Delta x = 0(6) + \frac{1}{2}(5)(36) = 90$ m. Comprobación con la timeless: $(30^2-0)/(2\cdot5) = 90$ m ✓`,
+              R`t-squared: $\Delta x = 0(6) + \frac{1}{2}(5)(36) = 90$ m. Check with timeless: $(30^2-0)/(2\cdot5) = 90$ m ✓`)},
+  {t:'check', kind:'num', mode:'drill',
+    q:D(R`Un tren a 40 m/s frena hasta pararse en 200 m. ¿Cuál es su aceleración? (no te dan el tiempo)`,
+        R`A train at 40 m/s brakes to a stop in 200 m. What is its acceleration? (no time given)`),
+    answer:-4, tol:0.05, unit:'m/s²',
+    explain:D(R`No hay tiempo ni te lo piden → <strong>timeless</strong>. $0 = 40^2 + 2a(200) \Rightarrow -1600 = 400a \Rightarrow a = -4$ m/s². Negativa porque frena.`,
+              R`No time given or asked for → <strong>timeless</strong>. $0 = 40^2 + 2a(200) \Rightarrow -1600 = 400a \Rightarrow a = -4$ m/s². Negative because it is braking.`)},
+  {t:'check', kind:'num', mode:'drill',
+    q:D(R`Una pelota se deja caer desde el reposo y cae 3 s con $a = 9{,}8$ m/s². ¿Qué velocidad lleva justo antes de tocar el suelo? (abajo = positivo)`,
+        R`A ball is dropped from rest and falls for 3 s with $a = 9{,}8$ m/s². What is its velocity just before hitting the ground? (down = positive)`),
+    answer:29.4, tol:0.2, unit:'m/s',
+    explain:D(R`DOVE: $v_f = v_i + at = 0 + (9{,}8)(3) = 29{,}4$ m/s. "Se deja caer" es otra forma de decir $v_i = 0$.`,
+              R`DOVE: $v_f = v_i + at = 0 + (9{,}8)(3) = 29{,}4$ m/s. "Is dropped" is another way of saying $v_i = 0$.`)},
+
+  {t:'h', title:D('Concepto: ¿lo has entendido de verdad?', 'Concept: did you really get it?'), sub:'Concept'},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D(R`Un coche va a $+20$ m/s con $a = -4$ m/s². ¿Qué está haciendo?`,
+        R`A car moves at $+20$ m/s with $a = -4$ m/s². What is it doing?`),
+    options:[D('Avanza frenando','Moving forwards, slowing down'), D('Retrocede acelerando','Moving backwards, speeding up'),
+             D('Está parado','At rest'), D('Avanza cada vez más rápido','Moving forwards, speeding up')],
+    answer:0,
+    explain:D(R`La velocidad es positiva, así que se mueve hacia adelante. La aceleración tiene el signo contrario, así que la reduce: frena. Se parará a los $20/4 = 5$ s.`,
+              R`The velocity is positive, so it moves forwards. The acceleration has the opposite sign, so it reduces it: braking. It will stop after $20/4 = 5$ s.`)},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D(R`Te dan $v_i$, $a$ y $\Delta x$, y te piden $v_f$. ¿Qué ecuación usas?`,
+        R`You are given $v_i$, $a$ and $\Delta x$, and asked for $v_f$. Which equation?`),
+    options:[D('timeless: v_f² = vᵢ² + 2aΔx','timeless: v_f² = vᵢ² + 2aΔx'),
+             D('t-squared: Δx = vᵢt + ½at²','t-squared: Δx = vᵢt + ½at²'),
+             D('DOVE: a = Δv/Δt','DOVE: a = Δv/Δt'),
+             D('v = Δx/Δt','v = Δx/Δt')],
+    answer:0,
+    explain:D(R`La variable que no aparece por ningún lado es $t$, y la única ecuación sin $t$ es la timeless. La última opción además está prohibida aquí: hay aceleración.`,
+              R`The variable that appears nowhere is $t$, and the only equation without $t$ is timeless. The last option is also forbidden here: there is acceleration.`)},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('Una pelota se lanza hacia arriba. Justo en el punto más alto, ¿cuánto vale su aceleración?',
+        'A ball is thrown upwards. Exactly at the highest point, what is its acceleration?'),
+    options:[
+      D('9,8 m/s² hacia abajo, igual que siempre','9.8 m/s² downwards, same as always'),
+      D('Cero, porque está parada','Zero, because it is stationary'),
+      D('9,8 m/s² hacia arriba','9.8 m/s² upwards'),
+      D('Depende de con qué fuerza se haya lanzado','It depends how hard it was thrown')
+    ],
+    answer:0,
+    explain:D(R`En el punto más alto la <strong>velocidad</strong> es cero, pero la aceleración no. Si fuese cero, la pelota se quedaría flotando ahí para siempre. Es exactamente lo mismo que en la rampa: arriba del todo $v=0$, pero $a$ sigue valiendo $-5$ m/s² y por eso la pelota vuelve a bajar.`,
+              R`At the highest point the <strong>velocity</strong> is zero, but the acceleration is not. If it were zero, the ball would hang there forever. It is exactly the ramp case: at the top $v=0$, but $a$ is still $-5$ m/s², which is why the ball comes back down.`)},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('Un coche duplica su velocidad. Frenando con la misma aceleración, la distancia de frenado…',
+        'A car doubles its speed. Braking with the same acceleration, the stopping distance…'),
+    options:[
+      D('Se multiplica por 4','Becomes 4 times bigger'),
+      D('Se multiplica por 2','Doubles'),
+      D('Es la misma','Stays the same'),
+      D('Se reduce a la mitad','Halves')
+    ],
+    answer:0,
+    explain:D(R`Por la timeless, $\Delta x = -v_i^2/(2a)$: la distancia depende del <strong>cuadrado</strong> de la velocidad. Al doblar $v_i$, el cuadrado se multiplica por 4. Comprueba con el ejemplo del cuaderno: a 15 m/s frena en 22,5 m; a 30 m/s frenaría en 90 m, no en 45.`,
+              R`From timeless, $\Delta x = -v_i^2/(2a)$: the distance depends on the <strong>square</strong> of the speed. Doubling $v_i$ multiplies the square by 4. Check it with the notebook example: at 15 m/s it stops in 22.5 m; at 30 m/s it would need 90 m, not 45.`)},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('¿Puede un objeto tener velocidad cero y aceleración distinta de cero en el mismo instante?',
+        'Can an object have zero velocity and non-zero acceleration at the same instant?'),
+    options:[
+      D('Sí: es el instante en que cambia de sentido','Yes: it is the instant it changes direction'),
+      D('No: sin velocidad no hay aceleración','No: no velocity means no acceleration'),
+      D('Solo si hay rozamiento','Only if there is friction'),
+      D('Solo en caída libre','Only in free fall')
+    ],
+    answer:0,
+    explain:D(R`Justo lo que pasa arriba de la rampa y arriba del lanzamiento. La velocidad pasa de positiva a negativa, y para cambiar de signo tiene que valer cero un instante; la aceleración, mientras tanto, sigue actuando y es precisamente lo que la hace cambiar de signo.`,
+              R`Exactly what happens at the top of the ramp and at the top of a throw. The velocity goes from positive to negative, and to change sign it must pass through zero for an instant; the acceleration, meanwhile, keeps acting and is precisely what makes it change sign.`)}
+  ]
+},
+
+/* ==================================================================== */
+'correcciones': {
+  subject: 'phys',
+  title: D('Todos los errores del cuaderno', 'Every error in your notebook'),
+  en: 'Corrections to your notes',
+  lede: D('Comprobé con Python los números de las cuatro páginas de apuntes. Casi todos los resultados están bien; lo que falla es cómo están escritos algunos pasos. Aquí está la lista completa, en un sitio.',
+          'I checked every number on the four pages of notes with Python. Almost all the results are right; what fails is how some steps are written. Here is the complete list, in one place.'),
+  blocks: [
+
+  {t:'h', title:D('Lo que está bien', 'What is correct'), sub:'Verified'},
+  {t:'p', html:D('Antes de las correcciones, lo que salió intacto. Todos estos números los recalculé y coinciden:',
+                 'Before the corrections, what came through clean. I recalculated all of these and they match:')},
+  {t:'vocab', head:[D('Cálculo del cuaderno','Calculation'), D('Resultado','Result'), D('Estado','Status')], rows:[
+    [D('Ida: 1200 / 600','Outward: 1200 / 600'), '2 m/s', '✓'],
+    [D('Vuelta: −1200 / −6','Return: −1200 / −6'), '200 s', '✓'],
+    [D('Perímetro: 105+105+68+68','Perimeter: 105+105+68+68'), '346 m', '✓'],
+    [D('Rapidez media: 346 / 90','Average speed: 346 / 90'), '3,84 m/s', '✓'],
+    [D('Pendientes: 4/3 · 4/1 · −2/2','Slopes: 4/3 · 4/1 · −2/2'), '1,33 · 4 · −1 m/s', '✓'],
+    [D('Frenada: Δx = 15(3) + ½(−5)(3²)','Braking: Δx = 15(3) + ½(−5)(3²)'), '22,5 m', '✓'],
+    [D('Coche: a = 25 / 8','Car: a = 25 / 8'), '3,125 m/s²', '✓'],
+    [D('Coche: Δx = ½(3,125)(8²)','Car: Δx = ½(3,125)(8²)'), '100 m', '✓'],
+    [D('Experimento: a = 0,91 / 0,95','Experiment: a = 0.91 / 0.95'), '0,96 m/s²', '✓'],
+    [D('Rampa: Δx = 10(2) + ½(−5)(2²)','Ramp: Δx = 10(2) + ½(−5)(2²)'), '10 m', '✓'],
+    [D('Caso vᵢ=−10, Δx=42 m','Case vᵢ=−10, Δx=42 m'), '"not possible"', '✓'],
+    [D('Distancia total: 133 + 100','Total distance: 133 + 100'), '233 m', '✓']
+  ]},
+  {t:'key', title:D('El diagnóstico','The diagnosis'), html:D(
+    'Tus <strong>resultados</strong> son buenos: sabes qué ecuación usar y sabes sustituir. Lo que se puede afinar es la <strong>escritura del procedimiento</strong>, y eso en un examen son puntos, porque se puntúa por pasos y no solo el número final.',
+    'Your <strong>results</strong> are good: you know which equation to use and how to substitute. What can be sharpened is <strong>how you write the method</strong>, and in an exam that is marks, because marking is step by step and not just the final number.')},
+
+  {t:'h', title:D('Los seis errores, uno a uno', 'The six errors, one by one'), sub:'The corrections'},
+  {t:'p', html:D('Cada uno está explicado a fondo en su lección; aquí están juntos para repasar antes del examen.',
+                 'Each one is explained in full in its own lesson; here they are together for revision before the exam.')},
+
+  {t:'fix', title:D('1 · la pendiente en Física','1 · slope in Physics'),
+    wrong:'slope = Δy / Δx   →   slope = velocity',
+    why:D(R`Si la pendiente fuese $\Delta y/\Delta x$, la velocidad llevaría $\Delta x$ abajo, y la velocidad es $\Delta x/\Delta t$. $\Delta y/\Delta x$ es la pendiente de Matemáticas; hay que traducir los nombres de los ejes al pasarla a Física.`,
+             R`If the slope were $\Delta y/\Delta x$, velocity would have $\Delta x$ underneath, but velocity is $\Delta x/\Delta t$. $\Delta y/\Delta x$ is the Maths slope; you must translate the axis names when moving it to Physics.`),
+    right:'slope = Δx / Δt = v'},
+
+  {t:'fix', title:D('2 · "magnitude" no es una magnitud','2 · "magnitude" is not a quantity'),
+    wrong:'magnitude → how far from point 0',
+    why:D(R`<em>Magnitude</em> significa "módulo de un vector" y siempre es el módulo <strong>de algo</strong>. Lo que describías es $|\Delta x|$, el desplazamiento sin signo.`,
+             R`<em>Magnitude</em> means "size of a vector" and is always the magnitude <strong>of something</strong>. What you described is $|\Delta x|$, the displacement without its sign.`),
+    right:'|Δx| = magnitude of the displacement'},
+
+  {t:'fix', title:D('3 · despejar antes de sustituir','3 · rearrange before substituting'),
+    wrong:'a = Δv/Δt = (v_f − v_i)/t = (0 − 15)/(−5) = 3 s',
+    why:D(R`La línea empieza en "a =" (m/s²) y acaba en segundos. Los dos lados de una igualdad tienen que tener las mismas unidades. Faltaba escribir el despeje de $t$.`,
+             R`The line starts at "a =" (m/s²) and ends in seconds. Both sides of an equation must have the same units. The rearrangement for $t$ was missing.`),
+    right:'t = (v_f − v_i) / a = (0 − 15) / (−5) = 3 s'},
+
+  {t:'fix', title:D('4 · Δv es una resta','4 · Δv is a subtraction'),
+    wrong:'a = Δv/Δt   →   −1,5 = 15/t = 6,7',
+    why:D(R`Dos cosas: $\Delta v$ no es 15, sino $v_f - v_i = 15 - 25 = -10$ m/s; y la cadena de igualdades afirma que $-1{,}5 = 6{,}7$, que es falso. El 6,7 al que llegaste es correcto, pero por el camino se perdió el $-10$.`,
+             R`Two things: $\Delta v$ is not 15 but $v_f - v_i = 15 - 25 = -10$ m/s; and the chain of equalities claims $-1{,}5 = 6{,}7$, which is false. The 6.7 you reached is right, but the $-10$ went missing along the way.`),
+    right:'t = Δv / a = (15 − 25) / (−1,5) = −10 / −1,5 = 6,67 s'},
+
+  {t:'fix', title:D('5 · el tiempo de vuelta en la rampa','5 · the return time on the ramp'),
+    wrong:'get back where she started?  →  2 s',
+    why:D(R`Los 2 s son solo la bajada. El viaje que pregunta el enunciado empieza abajo, sube y vuelve abajo: son dos tramos.`,
+             R`The 2 s is only the descent. The trip the question asks about starts at the bottom, goes up, and comes back down: two parts.`),
+    right:'t = 2 s + 2 s = 4 s'},
+
+  {t:'fix', title:D('6 · redondear demasiado pronto','6 · rounding too early'),
+    wrong:'t = 6,7 s  →  Δx = 25(6,7) + ½(−1,5)(6,7)² = 133 m',
+    why:D(R`Con el 6,7 redondeado la cuenta da 133,8 m. Con el tiempo exacto $6{,}\overline{6}$ s salen 133,3 m. El 133 escrito es el valor bueno, pero no sale de los números de encima.`,
+             R`With the rounded 6.7 the calculation gives 133.8 m. With the exact time $6{,}\overline{6}$ s you get 133.3 m. The 133 written down is the right value, but it does not follow from the numbers above it.`),
+    right:'Δx = (15² − 25²) / (2(−1,5)) = 133,3 m'},
+
+  {t:'h', title:D('Resumen para el examen', 'Exam checklist'), sub:'Takeaways'},
+  {t:'ul', items:[
+    D('Despeja la incógnita <strong>antes</strong> de sustituir, en su propia línea.','Rearrange for the unknown <strong>before</strong> substituting, on its own line.'),
+    D('Comprueba que los dos lados de cada igualdad tienen las mismas unidades.','Check that both sides of each equation have the same units.'),
+    D('Escribe Δ siempre como una resta explícita: final menos inicial.','Always write Δ as an explicit subtraction: final minus initial.'),
+    D('Relee qué te preguntan exactamente antes de dar el número.','Reread exactly what is being asked before giving the number.'),
+    D('Redondea solo al final.','Round only at the end.'),
+    D('Comprueba el resultado con una segunda ecuación: si coinciden, está bien.','Check the result with a second equation: if they agree, it is right.')
+  ]},
+  {t:'check', kind:'mc', mode:'concept',
+    q:D('De los seis errores, ¿cuál es el único que cambia el número de la respuesta?',
+        'Of the six errors, which is the only one that changes the answer itself?'),
+    options:[
+      D('El tiempo de vuelta en la rampa (2 s en vez de 4 s)','The ramp return time (2 s instead of 4 s)'),
+      D('La fórmula de la pendiente','The slope formula'),
+      D('El significado de "magnitude"','The meaning of "magnitude"'),
+      D('Despejar antes de sustituir','Rearranging before substituting')
+    ],
+    answer:0,
+    explain:D('Los demás son errores de notación o de escritura: el número final salía bien igualmente. El de la rampa es el único que da una respuesta numérica equivocada (la mitad del tiempo real), porque responde a una pregunta distinta de la que se hacía. El del redondeo está a medio camino: cambia el número, pero solo en los decimales.',
+              'The others are notation or writing errors: the final number still came out right. The ramp one is the only one giving a wrong numerical answer (half the real time), because it answers a different question from the one asked. The rounding one sits in between: it changes the number, but only in the decimals.')}
+  ]
+}
+
+});
