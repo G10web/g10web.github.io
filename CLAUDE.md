@@ -55,6 +55,9 @@ Cómo interpretarlo:
 ## Reglas que pidió Miguel (no negociables)
 
 1. **Todos los cálculos con Python.** Ningún número se publica sin recalcularlo en un script.
+   Vale también para las preguntas nuevas que inventes: van antes a
+   `verificacion/verificar_tandas_nuevas.py` y solo se publican si el script las da por buenas.
+   Y comprueba siempre lo que afirmes en la web, no solo los números.
 2. **Las fotos de los apuntes NO se muestran en la web.** Son solo la fuente. La web lleva
    diagramas SVG y gráficas propias, dibujados desde cero. Tampoco se ponen créditos tipo
    "fuente: foto 1". `fotos/` está en `.gitignore` y no se sube a GitHub.
@@ -145,11 +148,28 @@ situaciones cotidianas.
   why:D('por qué está mal','…'),
   right:'la versión correcta',           // se muestra en verde
   note:D('opcional','…'), tip:D('cómo no volver a caer','…')}
-{t:'check', kind:'num', mode:'drill', q:D('…','…'),
+{t:'tandas'}                                                 // selector de tandas
+{t:'check', kind:'num', mode:'drill', banco:'nuevas1', q:D('…','…'),
   answer:22.5, tol:0.05, unit:'m', explain:D('…','…')}
-{t:'check', kind:'mc', mode:'concept', q:D('…','…'),
+{t:'check', kind:'mc', mode:'concept', banco:'nuevas2', q:D('…','…'),
   options:[D('a','a'),D('b','b')], answer:0, explain:D('…','…')}
 ```
+
+### Tandas de ejercicios
+
+Cada lección tiene tres bloques de preguntas, elegibles con un selector:
+
+| `banco` | Qué es |
+|---|---|
+| `'apuntes'` (o sin `banco`) | Las preguntas sacadas de sus ejemplos de clase |
+| `'nuevas1'` | Primera tanda de práctica adicional |
+| `'nuevas2'` | Segunda tanda |
+
+Un bloque con `banco` solo se muestra en su tanda; un `check` sin `banco` cuenta como
+`'apuntes'`. Las secciones `{t:'h'}` de ejercicios también llevan `banco` para que se oculten
+con su tanda. El `{t:'tandas'}` va una sola vez, justo antes de la primera sección de
+ejercicios. **Si Miguel pide más preguntas, añade `'nuevas3'` a `TANDAS` en `app.js`** y crea
+los bloques con ese banco.
 
 Notas:
 
@@ -178,8 +198,16 @@ Artifact
 
 ## Cómo se guarda el progreso
 
-Un documento por lección en `progreso/<lessonId>`, mediante la capacidad `db`. Respaldo en
-`localStorage` para cuando abre sin sesión.
+Dos cosas distintas, y conviene no confundirlas:
+
+- **`progreso/<lessonId>`** — el estado actual: qué acertó y qué lecciones marcó como
+  repasadas. **El botón de reiniciar lo borra.**
+- **`respuestas/<lessonId>__<AAAA-MM-DD>`** — el historial permanente: todas las respuestas
+  dadas, con lo que escribió, si acertó, qué intento era y la fecha. **El reinicio NO lo
+  borra**, a propósito: es lo que permite detectar lagunas semanas después. Léelo con
+  `ArtifactData`, `action: "list"`, `collection: "respuestas"`.
+
+Ambos con respaldo en `localStorage` para cuando abre sin sesión.
 
 Cada comprobación se identifica por un **hash del texto de la pregunta**, no por su posición.
 Eso significa que se pueden añadir o reordenar ejercicios sin descolocar lo que ya hizo. Pero
@@ -187,6 +215,16 @@ Eso significa que se pueden añadir o reordenar ejercicios sin descolocar lo que
 una errata en un enunciado.
 
 ---
+
+## Puerta de entrada
+
+La web pide un nombre antes de mostrar nada. Se compara la **huella** (`hashId` del nombre en
+minúsculas y sin tildes) con la constante `HUELLA` de `app.js`, para que el nombre no aparezca
+escrito en el código. Tolera mayúsculas, tildes y espacios sobrantes.
+
+No es seguridad real: el repositorio es público y quien lea `app.js` puede saltársela. Es una
+barrera para que nadie entre de paso y conteste los ejercicios. Miguel lo sabe. Si alguna vez
+pide seguridad de verdad, la vía es poner el repositorio en privado y usar solo el artifact.
 
 ## Entorno
 
@@ -206,6 +244,9 @@ una errata en un enunciado.
 
 - **Física — Unidad 1: Cinemática**: 5 lecciones terminadas (el método del profesor, posición y
   desplazamiento, gráficas x-t y v-t, aceleración, y las correcciones de los apuntes).
-  Salen de 4 fotos de "Kinematics" y "Acceleration".
+  Salen de 4 fotos de "Kinematics" y "Acceleration". Las tres lecciones de contenido tienen
+  además dos tandas de práctica cada una.
+- La web está también publicada en **https://g10web.github.io** (GitHub Pages). Al actualizar
+  hay que hacer las dos cosas: republicar el artifact **y** `git push`.
 - **Matemáticas**: vacía, esperando fotos.
 - Se documentaron **6 errores** de los apuntes, todos en la lección `correcciones`.
