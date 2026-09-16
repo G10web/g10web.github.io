@@ -58,6 +58,17 @@
     syncCloud:   { es: 'guardado y sincronizado', en: 'saved and synced' },
     syncLocal:   { es: 'guardado solo en este navegador', en: 'saved in this browser only' },
     syncChecking:{ es: 'conectando…', en: 'connecting…' },
+    gateTitle:   { es: 'Cuaderno Year 11', en: 'Year 11 Notebook' },
+    gateText:    { es: 'Escribe tu nombre para entrar.', en: 'Type your name to enter.' },
+    gatePlaceholder: { es: 'tu nombre', en: 'your name' },
+    gateBtn:     { es: 'Entrar', en: 'Enter' },
+    gateError:   { es: 'Ese no es el nombre. Inténtalo otra vez.', en: 'That is not the name. Try again.' },
+    bankTitle:   { es: 'Ejercicios', en: 'Exercises' },
+    bankNotes:   { es: 'De los apuntes', en: 'From your notes' },
+    bankNew1:    { es: 'Nuevas preguntas', en: 'New questions' },
+    bankNew2:    { es: 'Nuevas · 2', en: 'New · 2' },
+    bankHint:    { es: 'Las de los apuntes salen de los ejemplos de tu clase. Las nuevas son distintas, para practicar otra vez.',
+                   en: 'The notes ones come from your own class examples. The new ones are different, to practise again.' },
     resetLesson: { es: 'Reiniciar mis respuestas', en: 'Reset my answers' },
     resetConfirm:{ es: 'Sí, borrar', en: 'Yes, delete' },
     resetWarn:   { es: 'se borran los aciertos de esta lección', en: "this lesson's answers will be deleted" },
@@ -112,6 +123,25 @@
     if (!prog[id].checks) prog[id].checks = {};
     return prog[id];
   }
+
+  /* ---------- tandas de ejercicios ----------
+     'apuntes' son las preguntas sacadas de sus apuntes de clase;
+     'nuevas1' y 'nuevas2' son tandas distintas para volver a practicar. */
+  var TANDAS = ['apuntes', 'nuevas1', 'nuevas2'];
+  var tandaActiva = {};
+  try { tandaActiva = JSON.parse(localStorage.getItem('y11-tanda')) || {}; } catch (e) {}
+  function tandaDe(lessonId) { return tandaActiva[lessonId] || 'apuntes'; }
+  function ponerTanda(lessonId, t) {
+    tandaActiva[lessonId] = t;
+    try { localStorage.setItem('y11-tanda', JSON.stringify(tandaActiva)); } catch (e) {}
+  }
+  function tandasDe(lessonId) {
+    var vistos = {};
+    LESSONS[lessonId].blocks.forEach(function (b) {
+      if (b.t === 'check') vistos[b.banco || 'apuntes'] = true;
+    });
+    return TANDAS.filter(function (t) { return vistos[t]; });
+  }
   function saveLocal() { try { localStorage.setItem(KEY, JSON.stringify(prog)); } catch (e) {} }
 
   /* Una escritura a la vez por documento, encadenadas. */
@@ -160,7 +190,37 @@
     }).catch(function () { dbEstado = 'local'; });
   }
 
-  /* Borra el progreso de una leccion: en memoria, en localStorage y en la nube. */
+  /* ---------- historial de respuestas ----------
+     Guarda TODAS las respuestas, para poder ver despues donde hay lagunas.
+     Es independiente del progreso: el boton de reiniciar NO lo borra. */
+  var historial = [];
+  try { historial = JSON.parse(localStorage.getItem('y11-historial')) || []; } catch (e) {}
+  var colaHist = Promise.resolve();
+
+  function anotarRespuesta(reg) {
+    historial.push(reg);
+    if (historial.length > 2000) historial = historial.slice(-2000);
+    try { localStorage.setItem('y11-historial', JSON.stringify(historial)); } catch (e) {}
+    if (!db) return;
+    /* Un documento por leccion y dia: acotado, y facil de leer despues. */
+    var docId = reg.leccion + '__' + new Date().toISOString().slice(0, 10);
+    colaHist = colaHist.then(function () {
+      return db.doc('respuestas/' + docId).get().then(function (snap) {
+        var previo = (snap.exists && snap.data()) || {};
+        var lista = (previo.intentos || []).concat([reg]).slice(-300);
+        return db.doc('respuestas/' + docId).set({
+          leccion: reg.leccion,
+          fecha: docId.slice(-10),
+          intentos: lista,
+          total: lista.length,
+          actualizado: new Date().toISOString()
+        });
+      });
+    }).catch(function () {});
+  }
+
+  /* Borra el progreso de una leccion: en memoria, en localStorage y en la nube.
+     El historial de respuestas se conserva a proposito. */
   function reiniciar(lessonId) {
     prog[lessonId] = { done: false, checks: {} };
     saveLocal();
@@ -173,7 +233,10 @@
   }
 
   function checkIdsOf(id) {
-    return LESSONS[id].blocks.filter(function (b) { return b.t === 'check'; }).map(checkId);
+    var t = tandaDe(id);
+    return LESSONS[id].blocks.filter(function (b) {
+      return b.t === 'check' && (b.banco || 'apuntes') === t;
+    }).map(checkId);
   }
   function nChecks(id) { return checkIdsOf(id).length; }
   function nRight(id) {
@@ -371,7 +434,19 @@
     var L = LESSONS[lessonId];
     var secN = 0, checkN = -1, current = null;
 
+    var tActiva = tandaDe(lessonId);
+
     L.blocks.forEach(function (b) {
+      /* Un bloque marcado con banco solo aparece en su tanda. Los ejercicios sin
+         marcar son los de los apuntes, que fue la primera tanda que existio. */
+      var bancoDe = b.banco || (b.t === 'check' ? 'apuntes' : null);
+      if (bancoDe && bancoDe !== tActiva) return;
+
+      if (b.t === 'tandas') {
+        current = null;
+        wrap.appendChild(selectorTandas(lessonId));
+        return;
+      }
       if (b.t === 'h') {
         secN++;
         current = el('section', 'blk');
@@ -495,6 +570,36 @@
     return n;
   }
 
+  /* Botonera para elegir la tanda de ejercicios. */
+  function selectorTandas(lessonId) {
+    var n = el('div', 'tandas');
+    n.appendChild(el('p', 'tandas-t', U('bankTitle')));
+    var fila = el('div', 'tandas-row');
+    var disponibles = tandasDe(lessonId);
+    var activa = tandaDe(lessonId);
+    disponibles.forEach(function (t) {
+      var etiquetas = { apuntes: U('bankNotes'), nuevas1: U('bankNew1'), nuevas2: U('bankNew2') };
+      var b = el('button', 'tanda-btn' + (t === activa ? ' on' : ''), etiquetas[t]);
+      var hechas = LESSONS[lessonId].blocks.filter(function (x) {
+        return x.t === 'check' && (x.banco || 'apuntes') === t;
+      });
+      var acertadas = hechas.filter(function (x) {
+        var c = pl(lessonId).checks[checkId(x)];
+        return c && c.ok === true;
+      }).length;
+      b.appendChild(el('span', 'tanda-n', acertadas + '/' + hechas.length));
+      b.addEventListener('click', function () {
+        if (t === tandaDe(lessonId)) return;
+        ponerTanda(lessonId, t);
+        viewLesson(lessonId);
+      });
+      fila.appendChild(b);
+    });
+    n.appendChild(fila);
+    n.appendChild(el('p', 'tandas-hint', U('bankHint')));
+    return n;
+  }
+
   function worked(b, guided) {
     var n = el('article', 'work' + (guided ? ' guided' : ''));
     var hd = el('header');
@@ -571,6 +676,18 @@
       c.ts = Date.now();
       pl(lessonId).checks[cid] = c;
       guardar(lessonId);
+      anotarRespuesta({
+        leccion: lessonId,
+        check: cid,
+        tanda: b.banco || 'apuntes',
+        modo: b.mode || 'drill',
+        tipo: b.kind,
+        pregunta: c.pregunta,
+        respuesta: respuesta,
+        correcta: ok,
+        intento: (c.aciertos || 0) + (c.fallos || 0),
+        ts: new Date().toISOString()
+      });
       fb.hidden = false;
       fb.className = 'fb ' + (ok ? 'ok' : 'no');
       fb.innerHTML = '<b>' + (ok ? U('correct') : U('incorrect')) + '</b> ' + T(b.explain);
@@ -840,6 +957,74 @@
     });
   }
 
+  /* ---------- puerta de entrada ----------
+     Comprueba la huella del nombre, no el nombre en claro: asi no aparece
+     escrito en el codigo. No es seguridad de verdad (quien lea este archivo
+     puede darle la vuelta), solo evita que alguien entre de paso y conteste. */
+  var HUELLA = 'co7zurs';
+  var LLAVE_ENTRADA = 'y11-entrada';
+
+  function normaliza(txt) {
+    return String(txt)
+      .toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')   // quita tildes
+      .replace(/[^a-z0-9]/g, '');                          // quita espacios y signos
+  }
+  function esValido(txt) { return hashId(normaliza(txt)) === HUELLA; }
+
+  function yaEntro() {
+    try { return localStorage.getItem(LLAVE_ENTRADA) === HUELLA; } catch (e) { return false; }
+  }
+  function recordarEntrada() {
+    try { localStorage.setItem(LLAVE_ENTRADA, HUELLA); } catch (e) {}
+  }
+
+  function pedirNombre() {
+    document.body.classList.add('bloqueado');
+    var capa = el('div', 'puerta');
+    var caja = el('form', 'puerta-caja');
+    caja.innerHTML =
+      '<div class="puerta-mark">Y11</div>' +
+      '<h1>' + U('gateTitle') + '</h1>' +
+      '<p>' + U('gateText') + '</p>';
+    var campo = document.createElement('input');
+    campo.type = 'text';
+    campo.id = 'gate-name';
+    campo.placeholder = U('gatePlaceholder');
+    campo.autocomplete = 'off';
+    campo.setAttribute('autocapitalize', 'none');
+    campo.setAttribute('spellcheck', 'false');
+    campo.setAttribute('aria-label', U('gatePlaceholder'));
+    var boton = el('button', 'btn', U('gateBtn'));
+    boton.type = 'submit';
+    var error = el('p', 'puerta-error');
+    error.hidden = true;
+    error.textContent = U('gateError');
+
+    caja.appendChild(campo);
+    caja.appendChild(boton);
+    caja.appendChild(error);
+    caja.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (esValido(campo.value)) {
+        recordarEntrada();
+        capa.remove();
+        document.body.classList.remove('bloqueado');
+        route();
+      } else {
+        error.hidden = false;
+        campo.value = '';
+        campo.focus();
+        caja.classList.remove('tiembla');
+        void caja.offsetWidth;
+        caja.classList.add('tiembla');
+      }
+    });
+    capa.appendChild(caja);
+    document.body.appendChild(capa);
+    setTimeout(function () { campo.focus(); }, 60);
+  }
+
   /* ---------- router ---------- */
   function route() {
     sidebar.classList.remove('open');
@@ -880,13 +1065,19 @@
      si contesta despues, se repinta la vista con el progreso ya fusionado. */
   iniciarDb().then(function () {
     pintarSync(document.getElementById('sync'));
-    if (dbEstado === 'nube') route();
+    if (dbEstado === 'nube' && yaEntro()) route();
   });
 
+  /* Nada se pinta hasta pasar la puerta. */
+  function arrancar() {
+    if (yaEntro()) route();
+    else pedirNombre();
+  }
+
   if (window.MathJax && MathJax.startup && MathJax.startup.promise) {
-    MathJax.startup.promise.then(route);
+    MathJax.startup.promise.then(arrancar);
   } else {
-    route();
+    arrancar();
     var tries = 0;
     var iv = setInterval(function () {
       if (window.MathJax && MathJax.typesetPromise) { clearInterval(iv); typeset(main); }
